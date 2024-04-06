@@ -42,7 +42,7 @@ const Home = () => {
     navigation.navigate('Notifications')
   }
 
-  const studentId = userInfo.studentId
+  const studentId = userInfo != null ? userInfo.studentId : 'SV202401'
   const [data, setData] = useState({
     name: '',
     profilePhoto: '',

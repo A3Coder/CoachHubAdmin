@@ -15,6 +15,13 @@ import TeachersScreen from '../screens/TeachersScreen/TeachersScreen';
 import TeacherDetailsScreen from '../screens/TeachersScreen/TeacherDetailsScreen';
 import TeacherEnroll from '../screens/TeachersScreen/TeacherEnroll';
 import ChangePasswordScreen from '../screens/ChangePasswordScreen';
+<<<<<<< HEAD
+import AdminquizScreen  from '../screens/AdminquizScreen/AdminquizScreen';
+import PostQuiz from '../screens/AdminquizScreen/PostquizScreen';
+=======
+import FeesScreen from '../screens/FeesScreen/Feesscreen';
+import PostfeesScreen from '../screens/FeesScreen/PostfeesScreen';
+>>>>>>> 5996f63cb1886ec9d52549d023b029479c61324f
 
 const Stack = createNativeStackNavigator();
 
@@ -140,7 +147,61 @@ const AppStack = () => {
           </View>
         )}
       </Stack.Screen>
+<<<<<<< HEAD
+      <Stack.Screen name="Admin Quiz">
+=======
+      <Stack.Screen name="Fees">
+>>>>>>> 5996f63cb1886ec9d52549d023b029479c61324f
+        {() => (
+          <View style={{ flex: 1, backgroundColor: '#4477BB' }}>
+            <ImageBackground
+              resizeMode="contain"
+              source={screenBG}
+              style={{
+                width: Dimensions.get('window').width,
+                height: Dimensions.get('window').height - 650,
+                position: 'absolute',
+                top: 8,
+              }}></ImageBackground>
+<<<<<<< HEAD
+            <AdminquizScreen />
+          </View>
+        )}
+      </Stack.Screen>
+      <Stack.Screen name="Post Quiz">
+=======
+            <FeesScreen/>
+          </View>
+        )}
+      </Stack.Screen>
+      <Stack.Screen name="PostFees">
+>>>>>>> 5996f63cb1886ec9d52549d023b029479c61324f
+        {() => (
+          <View style={{ flex: 1, backgroundColor: '#4477BB' }}>
+            <ImageBackground
+              resizeMode="contain"
+              source={screenBG}
+              style={{
+                width: Dimensions.get('window').width,
+                height: Dimensions.get('window').height - 650,
+                position: 'absolute',
+                top: 8,
+              }}></ImageBackground>
+<<<<<<< HEAD
+            <PostQuiz />
+          </View>
+        )}
+      </Stack.Screen>
     </Stack.Navigator>
+=======
+            <PostfeesScreen/>
+          </View>
+        )}
+      </Stack.Screen>
+      
+           
+          </Stack.Navigator>
+>>>>>>> 5996f63cb1886ec9d52549d023b029479c61324f
   );
 };
 

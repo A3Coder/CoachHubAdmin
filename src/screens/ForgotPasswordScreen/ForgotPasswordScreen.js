@@ -37,7 +37,7 @@ const ForgotPasswordScreen = () => {
     
     setLoading(true);
     try {
-      const apiUrl = await 'http://192.168.1.11:3000/api/v1/auth/forgot-password';
+      const apiUrl = await 'http://192.168.0.100:3000/api/v1/auth/forgot-password';
       // const apiUrl = await 'http://localhost:3000/api/v1/auth/login';
 
      

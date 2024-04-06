@@ -23,6 +23,9 @@ export default function Options({ icon, desc }) {
         if (desc == 'Change Password'){
             navigation.navigate('Change Password')
         }
+        if (desc == 'Update Quiz'){
+            navigation.navigate('Admin Quiz')
+        }
 
     }
 
