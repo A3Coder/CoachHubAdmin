@@ -15,6 +15,8 @@ import TeachersScreen from '../screens/TeachersScreen/TeachersScreen';
 import TeacherDetailsScreen from '../screens/TeachersScreen/TeacherDetailsScreen';
 import TeacherEnroll from '../screens/TeachersScreen/TeacherEnroll';
 import ChangePasswordScreen from '../screens/ChangePasswordScreen';
+import FeesScreen from '../screens/FeesScreen/Feesscreen';
+import PostfeesScreen from '../screens/FeesScreen/PostfeesScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -140,7 +142,41 @@ const AppStack = () => {
           </View>
         )}
       </Stack.Screen>
-    </Stack.Navigator>
+      <Stack.Screen name="Fees">
+        {() => (
+          <View style={{ flex: 1, backgroundColor: '#4477BB' }}>
+            <ImageBackground
+              resizeMode="contain"
+              source={screenBG}
+              style={{
+                width: Dimensions.get('window').width,
+                height: Dimensions.get('window').height - 650,
+                position: 'absolute',
+                top: 8,
+              }}></ImageBackground>
+            <FeesScreen/>
+          </View>
+        )}
+      </Stack.Screen>
+      <Stack.Screen name="PostFees">
+        {() => (
+          <View style={{ flex: 1, backgroundColor: '#4477BB' }}>
+            <ImageBackground
+              resizeMode="contain"
+              source={screenBG}
+              style={{
+                width: Dimensions.get('window').width,
+                height: Dimensions.get('window').height - 650,
+                position: 'absolute',
+                top: 8,
+              }}></ImageBackground>
+            <PostfeesScreen/>
+          </View>
+        )}
+      </Stack.Screen>
+      
+           
+          </Stack.Navigator>
   );
 };
 
