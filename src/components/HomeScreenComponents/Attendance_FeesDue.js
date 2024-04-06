@@ -8,7 +8,7 @@ export default function Attendance_FeesDue({ icon, title, desc, bgColor }) {
     if(title == 'Attendance'){
       navigation.navigate('Attendance')
     } else{
-      console.log(title)
+      navigation.navigate("Fees")
     }
   }
 
