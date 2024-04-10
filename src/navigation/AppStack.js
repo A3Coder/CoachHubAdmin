@@ -15,6 +15,10 @@ import TeachersScreen from '../screens/TeachersScreen/TeachersScreen';
 import TeacherDetailsScreen from '../screens/TeachersScreen/TeacherDetailsScreen';
 import TeacherEnroll from '../screens/TeachersScreen/TeacherEnroll';
 import ChangePasswordScreen from '../screens/ChangePasswordScreen';
+import GiveAssignmentScreen from '../screens/GiveAssignmentScreen';
+import UpdateHolidayScreen from '../screens/UpdateHolidayScreen';
+import UpdateEventsScreen from '../screens/UpdateEventsScreen';
+import TimeTable from '../screens/TimeTable';
 
 const Stack = createNativeStackNavigator();
 
@@ -137,6 +141,70 @@ const AppStack = () => {
                 top: 8,
               }}></ImageBackground>
             <ChangePasswordScreen />
+          </View>
+        )}
+      </Stack.Screen>
+      <Stack.Screen name="Give Assignment">
+        {() => (
+          <View style={{ flex: 1, backgroundColor: '#4477BB' }}>
+            <ImageBackground
+              resizeMode="contain"
+              source={screenBG}
+              style={{
+                width: Dimensions.get('window').width,
+                height: Dimensions.get('window').height - 650,
+                position: 'absolute',
+                top: 8,
+              }}></ImageBackground>
+            <GiveAssignmentScreen />
+          </View>
+        )}
+      </Stack.Screen>
+      <Stack.Screen name="Update Holidays">
+        {() => (
+          <View style={{ flex: 1, backgroundColor: '#4477BB' }}>
+            <ImageBackground
+              resizeMode="contain"
+              source={screenBG}
+              style={{
+                width: Dimensions.get('window').width,
+                height: Dimensions.get('window').height - 650,
+                position: 'absolute',
+                top: 8,
+              }}></ImageBackground>
+            <UpdateHolidayScreen />
+          </View>
+        )}
+      </Stack.Screen>
+      <Stack.Screen name="Update Events">
+        {() => (
+          <View style={{ flex: 1, backgroundColor: '#4477BB' }}>
+            <ImageBackground
+              resizeMode="contain"
+              source={screenBG}
+              style={{
+                width: Dimensions.get('window').width,
+                height: Dimensions.get('window').height - 650,
+                position: 'absolute',
+                top: 8,
+              }}></ImageBackground>
+            <UpdateEventsScreen />
+          </View>
+        )}
+      </Stack.Screen>
+      <Stack.Screen name="Time Table">
+        {() => (
+          <View style={{ flex: 1, backgroundColor: '#4477BB' }}>
+            <ImageBackground
+              resizeMode="contain"
+              source={screenBG}
+              style={{
+                width: Dimensions.get('window').width,
+                height: Dimensions.get('window').height - 650,
+                position: 'absolute',
+                top: 8,
+              }}></ImageBackground>
+            <TimeTable />
           </View>
         )}
       </Stack.Screen>

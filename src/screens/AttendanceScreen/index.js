@@ -91,13 +91,21 @@ const AttendanceScreen = () => {
     //States for Attendance Data
     const [data, setdata] = useState(attendanceData)
     const [selectedOption, setselectedOption] = useState(null)
-    const handleStateChange = (index, value) => {
-        var temp = data
+    // const handleStateChange = (index, value) => {
+    //     var temp = data
 
-        temp[index].isPresent = value
-        setdata(temp)
-        setselectedOption(index)
-        console.log(data)
+    //     temp[index].isPresent = value
+    //     setdata(temp)
+    //     setselectedOption(index)
+    //     console.log(data)
+    // }
+
+    const handleStateChange = (index, value) => {
+        const updatedData = [...data]; // Create a copy of the data array
+        updatedData[index] = {...updatedData[index], isPresent: value}; // Update the isPresent property of the selected student
+        setdata(updatedData); // Update the state with the updated data
+        setselectedOption(index); // Set the selected option index if needed
+        console.log(updatedData); // Optional: Log the updated data for debugging
     }
 
     //States for Query Data

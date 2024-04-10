@@ -4,6 +4,7 @@ import AppStack from './AppStack';
 import AuthStack from './AuthStack';
 import { NavigationContainer } from '@react-navigation/native';
 import { AuthContext } from '../context/AuthContext';
+import GiveAssignmentScreen from '../screens/GiveAssignmentScreen';
 
 const AppNav = () => {
   const { isLoading, userToken } = useContext(AuthContext);
@@ -22,6 +23,7 @@ const AppNav = () => {
       {
         userToken !== null ? <AppStack /> : <AuthStack />
       }
+      {/* <GiveAssignmentScreen/> */}
     </NavigationContainer>
   )
 }

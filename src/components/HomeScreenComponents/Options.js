@@ -23,12 +23,24 @@ export default function Options({ icon, desc }) {
         if (desc == 'Change Password'){
             navigation.navigate('Change Password')
         }
+        if(desc == 'Give Assignment'){
+            navigation.navigate('Give Assignment')
+        }
+        if(desc == 'Update Holidays'){
+            navigation.navigate('Update Holidays')
+        }
+        if(desc == 'Update Events'){
+            navigation.navigate('Update Events')
+        }
+        if(desc == 'Time Table'){
+            navigation.navigate('Time Table')
+        }
 
     }
 
     return (
         <TouchableHighlight
-            style={[[styles.container], desc == "Support" ? {justifyContent: 'center', alignItems: 'center'} : {}, desc == 'Student Details' || desc == 'Teacher Details' ? {borderWidth: 1, borderColor: '#4477BB'}:{}]}
+            style={[[styles.container], desc == "Support" ? {justifyContent: 'center', alignItems: 'center'} : {}, desc == 'Student Details' || desc == 'Teacher Details' || desc == 'Give Assignment' || desc == 'Update Holidays' || desc == 'Update Events' ? {borderWidth: 1, borderColor: '#4477BB'}:{}]}
             activeOpacity={0.8}
             underlayColor={'white'}
             onPress={onTap}
