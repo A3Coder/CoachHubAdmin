@@ -15,10 +15,20 @@ import TeachersScreen from '../screens/TeachersScreen/TeachersScreen';
 import TeacherDetailsScreen from '../screens/TeachersScreen/TeacherDetailsScreen';
 import TeacherEnroll from '../screens/TeachersScreen/TeacherEnroll';
 import ChangePasswordScreen from '../screens/ChangePasswordScreen';
+<<<<<<< HEAD
 import GiveAssignmentScreen from '../screens/GiveAssignmentScreen';
 import UpdateHolidayScreen from '../screens/UpdateHolidayScreen';
 import UpdateEventsScreen from '../screens/UpdateEventsScreen';
 import TimeTable from '../screens/TimeTable';
+=======
+<<<<<<< HEAD
+import AdminquizScreen  from '../screens/AdminquizScreen/AdminquizScreen';
+import PostQuiz from '../screens/AdminquizScreen/PostquizScreen';
+=======
+import FeesScreen from '../screens/FeesScreen/Feesscreen';
+import PostfeesScreen from '../screens/FeesScreen/PostfeesScreen';
+>>>>>>> 5996f63cb1886ec9d52549d023b029479c61324f
+>>>>>>> 2f1aa788f6c15f400e94c68057ef122a07ab8231
 
 const Stack = createNativeStackNavigator();
 
@@ -144,7 +154,15 @@ const AppStack = () => {
           </View>
         )}
       </Stack.Screen>
+<<<<<<< HEAD
       <Stack.Screen name="Give Assignment">
+=======
+<<<<<<< HEAD
+      <Stack.Screen name="Admin Quiz">
+=======
+      <Stack.Screen name="Fees">
+>>>>>>> 5996f63cb1886ec9d52549d023b029479c61324f
+>>>>>>> 2f1aa788f6c15f400e94c68057ef122a07ab8231
         {() => (
           <View style={{ flex: 1, backgroundColor: '#4477BB' }}>
             <ImageBackground
@@ -156,11 +174,27 @@ const AppStack = () => {
                 position: 'absolute',
                 top: 8,
               }}></ImageBackground>
+<<<<<<< HEAD
             <GiveAssignmentScreen />
           </View>
         )}
       </Stack.Screen>
       <Stack.Screen name="Update Holidays">
+=======
+<<<<<<< HEAD
+            <AdminquizScreen />
+          </View>
+        )}
+      </Stack.Screen>
+      <Stack.Screen name="Post Quiz">
+=======
+            <FeesScreen/>
+          </View>
+        )}
+      </Stack.Screen>
+      <Stack.Screen name="PostFees">
+>>>>>>> 5996f63cb1886ec9d52549d023b029479c61324f
+>>>>>>> 2f1aa788f6c15f400e94c68057ef122a07ab8231
         {() => (
           <View style={{ flex: 1, backgroundColor: '#4477BB' }}>
             <ImageBackground
@@ -172,6 +206,7 @@ const AppStack = () => {
                 position: 'absolute',
                 top: 8,
               }}></ImageBackground>
+<<<<<<< HEAD
             <UpdateHolidayScreen />
           </View>
         )}
@@ -205,10 +240,23 @@ const AppStack = () => {
                 top: 8,
               }}></ImageBackground>
             <TimeTable />
+=======
+<<<<<<< HEAD
+            <PostQuiz />
+>>>>>>> 2f1aa788f6c15f400e94c68057ef122a07ab8231
           </View>
         )}
       </Stack.Screen>
     </Stack.Navigator>
+=======
+            <PostfeesScreen/>
+          </View>
+        )}
+      </Stack.Screen>
+      
+           
+          </Stack.Navigator>
+>>>>>>> 5996f63cb1886ec9d52549d023b029479c61324f
   );
 };
 

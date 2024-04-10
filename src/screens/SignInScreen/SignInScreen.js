@@ -43,7 +43,11 @@ const SignInScreen = () => {
   const onSignInPressed = async data => {
     setLoading(true);
     try {
+<<<<<<< HEAD
       const apiUrl = await 'http://192.168.1.28:3000/api/v1/auth/login';
+=======
+      const apiUrl = await 'http://http://192.168.167.182:3000/api/v1/auth/login';
+>>>>>>> 2f1aa788f6c15f400e94c68057ef122a07ab8231
 
       fetch(apiUrl, {
         method: 'POST',

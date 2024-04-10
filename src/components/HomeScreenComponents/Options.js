@@ -23,6 +23,7 @@ export default function Options({ icon, desc }) {
         if (desc == 'Change Password'){
             navigation.navigate('Change Password')
         }
+<<<<<<< HEAD
         if(desc == 'Give Assignment'){
             navigation.navigate('Give Assignment')
         }
@@ -34,6 +35,10 @@ export default function Options({ icon, desc }) {
         }
         if(desc == 'Time Table'){
             navigation.navigate('Time Table')
+=======
+        if (desc == 'Update Quiz'){
+            navigation.navigate('Admin Quiz')
+>>>>>>> 2f1aa788f6c15f400e94c68057ef122a07ab8231
         }
 
     }
