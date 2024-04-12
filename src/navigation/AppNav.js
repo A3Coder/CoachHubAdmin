@@ -19,11 +19,9 @@ const AppNav = () => {
 
   return (
     <NavigationContainer>
-      {/* {userToken !== null ? <AppStack /> : <AuthStack />} */}
       {
-        userToken == null ? <AppStack /> : <AuthStack />
+        userToken !== null ? <AppStack /> : <AuthStack />
       }
-      {/* <GiveAssignmentScreen/> */}
     </NavigationContainer>
   )
 }

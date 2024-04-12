@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
     StyleSheet,
     Text,
@@ -29,45 +29,16 @@ import { faGreaterThan, faMagnifyingGlass } from '@fortawesome/free-solid-svg-ic
 import BOTTOMVECTOR from '../../assets/images/bottomvector.png'
 import DIVIDER from '../../assets/images/divider.png'
 import AVATAR from '../../assets/images/avatar.jpg'
-
-const selectClass = [
-    { label: 'Class V', value: 'V' },
-    { label: 'Class VI', value: 'VI' },
-    { label: 'Class VII', value: 'VII' },
-    { label: 'Class VIII', value: 'VIII' },
-    { label: 'Class IX', value: 'IX' },
-    { label: 'Class X', value: 'X' },
-];
-
-const teachersData = [
-    {
-        profilePhoto: '',
-        teacherId: 'TV01',
-        teacherName: 'Md. Ali'
-    },
-    {
-        profilePhoto: '',
-        teacherId: 'TV02',
-        teacherName: 'Rab Abdul'
-    },
-    {
-        profilePhoto: '',
-        teacherId: 'TV03',
-        teacherName: 'Kumar Nitesh'
-    },
-    {
-        profilePhoto: '',
-        teacherId: 'TV04',
-        teacherName: 'Md. Rima'
-    },
-]
+import ipAddress from '../../url';
 
 const QueryDataComponent = ({ item, index, data, navigate }) => {
     if (data === true) {
         return (
-            <Pressable key={index} onPress={navigate} android_ripple={{ foreground: true, borderless: false, color: '#4477BB' }} style={{ marginTop: 15, width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8, overflow: 'hidden', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 10, borderWidth: 1, borderColor: '#4477BB', borderStyle: 'dashed' }}>
+            <Pressable key={index} onPress={() => navigate(item.teacherId)} android_ripple={{ foreground: true, borderless: false, color: '#4477BB' }} style={{ marginTop: 15, width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8, overflow: 'hidden', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 10, borderWidth: 1, borderColor: '#4477BB', borderStyle: 'dashed' }}>
                 <View style={{ width: 80, height: 80, borderRadius: 50, borderWidth: 1, borderColor: 'grey', overflow: 'hidden', backgroundColor: 'white' }}>
-                    <Image source={AVATAR} style={{ width: '100%', height: '100%' }} resizeMode='contain'></Image>
+                    {
+                        item.profilePhoto != "" ? <Image source={{ uri: item.profilePhoto }} style={{ width: '100%', height: '100%' }} resizeMode='contain'></Image> : <Image source={AVATAR} style={{ width: '100%', height: '100%' }} resizeMode='contain'></Image>
+                    }
                 </View>
                 <View style={{ flex: 1, height: '100%', backgroundColor: 'white', }}>
                     <View style={{ flex: 1, justifyContent: 'center', }}>
@@ -97,11 +68,12 @@ const QueryDataComponent = ({ item, index, data, navigate }) => {
 const TeachersScreen = () => {
     const navigation = useNavigation()
 
+    //States for Classes DropDown
     const [value, setValue] = useState(null);
-    const [value2, setValue2] = useState(null);
-
     const [isFocus, setIsFocus] = useState(false);
-    const [isFocus2, setIsFocus2] = useState(false);
+    const [selectClass, setselectClass] = useState([])
+
+    const [teachersData, setteachersData] = useState([])
 
     //States for Query Data
     const [queryData, setqueryData] = useState([])
@@ -123,9 +95,46 @@ const TeachersScreen = () => {
         setqueryData(queryData)
     }
 
+    //Fetch Data from Backend
+    const fetchClasses = async () => {
+        const response = await fetch(`http://${ipAddress}:3000/api/v1/classes`).then((res) => res.json())
+
+        var classes = []
+        response.forEach((item) => {
+            var temp = { label: `Class ${item.class}`, value: item.class }
+
+            classes.push(temp)
+        })
+
+        setselectClass(classes)
+    }
+    const fetchTeachers = async (className) => {
+        const response = await fetch(`http://${ipAddress}:3000/api/v1/teachers/search/${className}`).then((res) => res.json())
+
+        var teachers = []
+        if (response.success === false) {
+            setteachersData([])
+            return
+        }
+        response.forEach((item) => {
+            var temp = {
+                profilePhoto: item.profilePhoto,
+                teacherId: item.teacherId,
+                teacherName: item.name
+            }
+
+            teachers.push(temp)
+        })
+        setteachersData(teachers)
+    }
+
+    useEffect(() => {
+        fetchClasses()
+    }, [])
+
     //Handle Navigation
-    const handleNavigation = () => {
-        navigation.navigate('Teacher Details')
+    const handleNavigation = (teacherId) => {
+        navigation.navigate('Teacher Details', {teacherId : teacherId})
     }
 
     //Handle Button Press
@@ -171,6 +180,7 @@ const TeachersScreen = () => {
                                 onChange={item => {
                                     setValue(item.value);
                                     setIsFocus(false);
+                                    fetchTeachers(item.value)
                                 }}
                             />
 
@@ -193,9 +203,11 @@ const TeachersScreen = () => {
                                     <QueryDataComponent key={index} data={true} item={item} index={index} navigate={handleNavigation}></QueryDataComponent>
                                 )) : <QueryDataComponent data={false}></QueryDataComponent> :
                                     teachersData.map((item, index) => (
-                                        <Pressable key={index} onPress={handleNavigation} android_ripple={{ foreground: true, borderless: false, color: '#4477BB' }} style={{ marginTop: 15, width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8, overflow: 'hidden', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 10, borderWidth: 1, borderColor: '#4477BB', borderStyle: 'dashed' }}>
+                                        <Pressable key={index} onPress={() => handleNavigation(item.teacherId)} android_ripple={{ foreground: true, borderless: false, color: '#4477BB' }} style={{ marginTop: 15, width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8, overflow: 'hidden', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 10, borderWidth: 1, borderColor: '#4477BB', borderStyle: 'dashed' }}>
                                             <View style={{ width: 80, height: 80, borderRadius: 50, borderWidth: 1, borderColor: 'grey', overflow: 'hidden', backgroundColor: 'white' }}>
-                                                <Image source={AVATAR} style={{ width: '100%', height: '100%' }} resizeMode='contain'></Image>
+                                                {
+                                                    item.profilePhoto != "" ? <Image source={{ uri: item.profilePhoto }} style={{ width: '100%', height: '100%' }} resizeMode='contain'></Image> : <Image source={AVATAR} style={{ width: '100%', height: '100%' }} resizeMode='contain'></Image>
+                                                }
                                             </View>
                                             <View style={{ flex: 1, height: '100%', backgroundColor: 'white', }}>
                                                 <View style={{ flex: 1, justifyContent: 'center', }}>

@@ -1,36 +1,67 @@
-import React, { useContext, useRef, useState } from 'react';
-import { StyleSheet, Text, View, KeyboardAvoidingView, ScrollView, Platform, TouchableOpacity, TouchableWithoutFeedback, Image, Alert, TextInput, StatusBar, } from 'react-native';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { StyleSheet, Text, View, KeyboardAvoidingView, ScrollView, Platform, TouchableOpacity, TouchableWithoutFeedback, Image, Alert, TextInput, StatusBar, Pressable, } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
 //FontAwesome Icons
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faLessThan } from '@fortawesome/free-solid-svg-icons/faLessThan'
 import { faLock } from '@fortawesome/free-solid-svg-icons/faLock'
+import { faArrowRight } from '@fortawesome/free-solid-svg-icons';
 
 //Importing Assets
 import BOTTOMVECTOR from '../../assets/images/bottomvector.png'
 import AVATAR from '../../assets/images/avatar.jpg'
+import ipAddress from '../../url';
 
 const StudentDetailsScreen = () => {
     const navigation = useNavigation()
     const route = useRoute()
 
+    console.log(route.params)
+
     //Fetch Data from Database or using Route
-    const studentDetails = {
+    const [studentDetails, setstudentDetails] = useState({
         profilePhoto: '',
-        emailId: 'md.aasifaliaadil786@gmail.com',
-        class: 'V',
-        name: 'Md. Aasif Ali Aadil',
-        mobileNo: '9330852282',
-        gender: 'Male',
-        aadharNo: '485313343995',
-        admissionYear: '2024',
-        admissionDate: '26/03/2024',
-        birthDate: '07/03/2002',
-        motherName: 'Jahan Ara Bano',
-        fatherName: 'Md. Shahabuddin',
-        permanentAddress: '22B, G. J. Khan Road, Kolkata - 700039'
+        emailId: '',
+        class: '',
+        name: '',
+        mobileNo: '',
+        gender: '',
+        aadharNo: '',
+        admissionYear: '',
+        admissionDate: '',
+        birthDate: '',
+        motherName: '',
+        fatherName: '',
+        permanentAddress: ''
+    })
+
+    //Fetch Student Details
+    const fetchDetails = async () => {
+        const response = await fetch(`http://${ipAddress}:3000/api/v1/students/${route.params.studentId}`).then((res) => res.json())
+
+        var temp = {
+            profilePhoto: response.student[0].studentDetails.profilePhoto,
+            emailId: response.student[0].emailId,
+            class: response.student[0].studentDetails.class,
+            name: response.student[0].studentDetails.name,
+            mobileNo: String(response.student[0].studentDetails.mobileNo),
+            gender: response.student[0].studentDetails.gender,
+            aadharNo: String(response.student[0].studentDetails.aadharNo),
+            admissionYear: String(response.student[0].studentDetails.admissionYear),
+            admissionDate: response.student[0].studentDetails.dateofAdmission,
+            birthDate: response.student[0].studentDetails.dateofBirth,
+            motherName: response.student[0].studentDetails.motherName,
+            fatherName: response.student[0].studentDetails.fatherName,
+            permanentAddress: response.student[0].studentDetails.permanentAddress
+        }
+        console.log(response)
+        setstudentDetails(temp)
+        console.log(studentDetails)
     }
+    useEffect(() => {
+        fetchDetails()
+    }, [])
 
     return (
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.root}>
@@ -53,7 +84,7 @@ const StudentDetailsScreen = () => {
                             <View style={{ height: 100, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <View style={{ justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: '#C3D0EA', height: 100, width: 100, borderRadius: 50, overflow: 'hidden' }}>
                                     {
-                                        studentDetails.profilePhoto != '' ? <Image source={profilePhoto} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <Image source={AVATAR} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                        studentDetails.profilePhoto != null && studentDetails.profilePhoto != '' ? <Image source={{ uri: studentDetails.profilePhoto }} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <Image source={AVATAR} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                     }
                                 </View>
                             </View>
@@ -192,7 +223,7 @@ const StudentDetailsScreen = () => {
                             </View>
                         </View>
 
-                        <View style={{ marginTop: 30, marginBottom: 30 }}>
+                        <View style={{ marginTop: 30, marginBottom: 10 }}>
                             <Text style={{ fontSize: 16, color: 'black' }}>Permanent Address</Text>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', }}>
                                 <TextInput
@@ -204,6 +235,43 @@ const StudentDetailsScreen = () => {
                             </View>
                         </View>
                     </View>
+                    <Pressable
+                        onPress={() => navigation.navigate('Attendance Status')}
+                        android_ripple={{ foreground: true, borderless: false, }}
+                        style={{
+                            width: '90%',
+                            marginBottom: 20,
+                            alignSelf: 'center',
+                            overflow: 'hidden',
+                            backgroundColor: 'white',
+                            borderWidth: 1,
+                            borderColor: '#4477BB',
+                            borderStyle: 'dashed',
+                            borderRadius: 10,
+                        }}>
+                        <View style={{justifyContent: 'center', alignItems: 'center',}}>
+                            <Text style={styles.btn}>Attendance Status</Text>
+                            <FontAwesomeIcon icon={faArrowRight} size={20} color='#4477BB' style={{ position: 'absolute', right: 15}}></FontAwesomeIcon>
+                        </View>
+                    </Pressable>
+                    <Pressable
+                        onPress={() => navigation.navigate('Fees Status')}
+                        android_ripple={{ foreground: true, borderless: false, }}
+                        style={{
+                            width: '90%',
+                            marginBottom: 20,
+                            alignSelf: 'center',
+                            backgroundColor: 'white',
+                            borderWidth: 1,
+                            borderColor: '#4477BB',
+                            borderStyle: 'dashed',
+                            borderRadius: 10,
+                        }}>
+                        <View style={{justifyContent: 'center', alignItems: 'center',}}>
+                            <Text style={styles.btn}>Fees Status</Text>
+                            <FontAwesomeIcon icon={faArrowRight} size={20} color='#4477BB' style={{ position: 'absolute', right: 15}}></FontAwesomeIcon>
+                        </View>
+                    </Pressable>
                 </View>
                 <Image
                     style={styles.img}
@@ -227,6 +295,7 @@ const styles = StyleSheet.create({
     headerLeft: {
         flex: 1,
         flexDirection: 'row',
+        alignItems: 'center',
         gap: 8,
     },
     headerIcon: {
@@ -289,20 +358,19 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
     btn: {
-        width: '90%',
-        margin: 15,
-        alignSelf: 'center',
-        paddingVertical: 15,
-        backgroundColor: '#4477BB',
-        borderWidth: 2,
-        borderRadius: 15,
-        borderColor: '#4477BB',
-        justifyContent: 'center',
-        alignItems: 'center',
+        paddingHorizontal: 15,
+        paddingVertical: 10,
+        textAlign: 'center',
+        color: '#4477BB',
+        fontSize: 20,
+        // marginBottom: 20,
+        fontWeight: 'bold',
+        textTransform: 'uppercase',
     },
     img: {
         position: 'absolute',
         bottom: 0,
+        zIndex: 1,
         justifyContent: 'flex-end',
         marginTop: 15,
         width: '100%',

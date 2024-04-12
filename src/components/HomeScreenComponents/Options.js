@@ -3,7 +3,7 @@ import React, { useContext } from 'react'
 import { AuthContext } from '../../context/AuthContext';
 import { useNavigation } from '@react-navigation/native'
 
-export default function Options({ icon, desc }) {
+const Options = ({ icon, desc }) => {
     const { Logout } = useContext(AuthContext);
     const navigation = useNavigation()
 
@@ -11,41 +11,36 @@ export default function Options({ icon, desc }) {
         if (desc == 'Logout') {
             console.log(desc)
             Logout()
-        } else {
-            console.log(desc)
         }
-        if (desc == 'Student Details'){
+        if (desc == 'Student Details') {
             navigation.navigate('Students')
         }
-        if (desc == 'Teacher Details'){
+        if (desc == 'Teacher Details') {
             navigation.navigate('Teachers')
         }
-        if (desc == 'Change Password'){
+        if (desc == 'Change Password') {
             navigation.navigate('Change Password')
         }
-<<<<<<< HEAD
-        if(desc == 'Give Assignment'){
+        if (desc == 'Give Assignment') {
             navigation.navigate('Give Assignment')
         }
-        if(desc == 'Update Holidays'){
+        if (desc == 'Update Holidays') {
             navigation.navigate('Update Holidays')
         }
-        if(desc == 'Update Events'){
+        if (desc == 'Update Events') {
             navigation.navigate('Update Events')
         }
-        if(desc == 'Time Table'){
+        if (desc == 'Time Table') {
             navigation.navigate('Time Table')
-=======
-        if (desc == 'Update Quiz'){
-            navigation.navigate('Admin Quiz')
->>>>>>> 2f1aa788f6c15f400e94c68057ef122a07ab8231
         }
-
+        if (desc == 'Update Quiz') {
+            navigation.navigate('Admin Quiz')
+        }
     }
 
     return (
         <TouchableHighlight
-            style={[[styles.container], desc == "Support" ? {justifyContent: 'center', alignItems: 'center'} : {}, desc == 'Student Details' || desc == 'Teacher Details' || desc == 'Give Assignment' || desc == 'Update Holidays' || desc == 'Update Events' ? {borderWidth: 1, borderColor: '#4477BB'}:{}]}
+            style={[[styles.container], desc == "Support" ? { justifyContent: 'center', alignItems: 'center' } : {}, desc == 'Student Details' || desc == 'Teacher Details' ? { borderWidth: 1, borderColor: '#4477BB' } : {}]}
             activeOpacity={0.8}
             underlayColor={'white'}
             onPress={onTap}
@@ -85,8 +80,10 @@ const styles = StyleSheet.create({
         resizeMode: 'contain',
     },
     text: {
-        fontSize: 18,
+        fontSize: 15,
         fontWeight: '400',
         color: 'black',
     },
-});
+})
+
+export default Options

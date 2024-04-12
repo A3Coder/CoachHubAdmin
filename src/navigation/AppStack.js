@@ -15,20 +15,17 @@ import TeachersScreen from '../screens/TeachersScreen/TeachersScreen';
 import TeacherDetailsScreen from '../screens/TeachersScreen/TeacherDetailsScreen';
 import TeacherEnroll from '../screens/TeachersScreen/TeacherEnroll';
 import ChangePasswordScreen from '../screens/ChangePasswordScreen';
-<<<<<<< HEAD
 import GiveAssignmentScreen from '../screens/GiveAssignmentScreen';
 import UpdateHolidayScreen from '../screens/UpdateHolidayScreen';
 import UpdateEventsScreen from '../screens/UpdateEventsScreen';
 import TimeTable from '../screens/TimeTable';
-=======
-<<<<<<< HEAD
-import AdminquizScreen  from '../screens/AdminquizScreen/AdminquizScreen';
+import AdminquizScreen from '../screens/AdminquizScreen/AdminquizScreen';
 import PostQuiz from '../screens/AdminquizScreen/PostquizScreen';
-=======
 import FeesScreen from '../screens/FeesScreen/Feesscreen';
 import PostfeesScreen from '../screens/FeesScreen/PostfeesScreen';
->>>>>>> 5996f63cb1886ec9d52549d023b029479c61324f
->>>>>>> 2f1aa788f6c15f400e94c68057ef122a07ab8231
+
+import FeesStatusScreen from '../screens/StatusScreen/FeesStatusScreen';
+import AttendanceStatusScreen from '../screens/StatusScreen/AttendanceStatusScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -154,15 +151,8 @@ const AppStack = () => {
           </View>
         )}
       </Stack.Screen>
-<<<<<<< HEAD
+
       <Stack.Screen name="Give Assignment">
-=======
-<<<<<<< HEAD
-      <Stack.Screen name="Admin Quiz">
-=======
-      <Stack.Screen name="Fees">
->>>>>>> 5996f63cb1886ec9d52549d023b029479c61324f
->>>>>>> 2f1aa788f6c15f400e94c68057ef122a07ab8231
         {() => (
           <View style={{ flex: 1, backgroundColor: '#4477BB' }}>
             <ImageBackground
@@ -174,27 +164,12 @@ const AppStack = () => {
                 position: 'absolute',
                 top: 8,
               }}></ImageBackground>
-<<<<<<< HEAD
             <GiveAssignmentScreen />
           </View>
         )}
       </Stack.Screen>
+
       <Stack.Screen name="Update Holidays">
-=======
-<<<<<<< HEAD
-            <AdminquizScreen />
-          </View>
-        )}
-      </Stack.Screen>
-      <Stack.Screen name="Post Quiz">
-=======
-            <FeesScreen/>
-          </View>
-        )}
-      </Stack.Screen>
-      <Stack.Screen name="PostFees">
->>>>>>> 5996f63cb1886ec9d52549d023b029479c61324f
->>>>>>> 2f1aa788f6c15f400e94c68057ef122a07ab8231
         {() => (
           <View style={{ flex: 1, backgroundColor: '#4477BB' }}>
             <ImageBackground
@@ -206,11 +181,11 @@ const AppStack = () => {
                 position: 'absolute',
                 top: 8,
               }}></ImageBackground>
-<<<<<<< HEAD
             <UpdateHolidayScreen />
           </View>
         )}
       </Stack.Screen>
+
       <Stack.Screen name="Update Events">
         {() => (
           <View style={{ flex: 1, backgroundColor: '#4477BB' }}>
@@ -227,6 +202,7 @@ const AppStack = () => {
           </View>
         )}
       </Stack.Screen>
+
       <Stack.Screen name="Time Table">
         {() => (
           <View style={{ flex: 1, backgroundColor: '#4477BB' }}>
@@ -240,23 +216,111 @@ const AppStack = () => {
                 top: 8,
               }}></ImageBackground>
             <TimeTable />
-=======
-<<<<<<< HEAD
+          </View >
+        )}
+      </Stack.Screen >
+
+      <Stack.Screen name="Admin Quiz">
+        {() => (
+          <View style={{ flex: 1, backgroundColor: '#4477BB' }}>
+            <ImageBackground
+              resizeMode="contain"
+              source={screenBG}
+              style={{
+                width: Dimensions.get('window').width,
+                height: Dimensions.get('window').height - 650,
+                position: 'absolute',
+                top: 8,
+              }}></ImageBackground>
+            <AdminquizScreen />
+          </View >
+        )}
+      </Stack.Screen >
+
+      <Stack.Screen name="Post Quiz">
+        {() => (
+          <View style={{ flex: 1, backgroundColor: '#4477BB' }}>
+            <ImageBackground
+              resizeMode="contain"
+              source={screenBG}
+              style={{
+                width: Dimensions.get('window').width,
+                height: Dimensions.get('window').height - 650,
+                position: 'absolute',
+                top: 8,
+              }}></ImageBackground>
             <PostQuiz />
->>>>>>> 2f1aa788f6c15f400e94c68057ef122a07ab8231
-          </View>
+          </View >
         )}
-      </Stack.Screen>
-    </Stack.Navigator>
-=======
-            <PostfeesScreen/>
-          </View>
+      </Stack.Screen >
+
+      <Stack.Screen name="Fees">
+        {() => (
+          <View style={{ flex: 1, backgroundColor: '#4477BB' }}>
+            <ImageBackground
+              resizeMode="contain"
+              source={screenBG}
+              style={{
+                width: Dimensions.get('window').width,
+                height: Dimensions.get('window').height - 650,
+                position: 'absolute',
+                top: 8,
+              }}></ImageBackground>
+            <FeesScreen />
+          </View >
         )}
-      </Stack.Screen>
-      
-           
-          </Stack.Navigator>
->>>>>>> 5996f63cb1886ec9d52549d023b029479c61324f
+      </Stack.Screen >
+
+      <Stack.Screen name="Post Fees">
+        {() => (
+          <View style={{ flex: 1, backgroundColor: '#4477BB' }}>
+            <ImageBackground
+              resizeMode="contain"
+              source={screenBG}
+              style={{
+                width: Dimensions.get('window').width,
+                height: Dimensions.get('window').height - 650,
+                position: 'absolute',
+                top: 8,
+              }}></ImageBackground>
+            <PostfeesScreen />
+          </View >
+        )}
+      </Stack.Screen >
+
+      <Stack.Screen name="Fees Status">
+        {() => (
+          <View style={{ flex: 1, backgroundColor: '#4477BB' }}>
+            <ImageBackground
+              resizeMode="contain"
+              source={screenBG}
+              style={{
+                width: Dimensions.get('window').width,
+                height: Dimensions.get('window').height - 650,
+                position: 'absolute',
+                top: 8,
+              }}></ImageBackground>
+            <FeesStatusScreen />
+          </View >
+        )}
+      </Stack.Screen >
+      <Stack.Screen name="Attendance Status">
+        {() => (
+          <View style={{ flex: 1, backgroundColor: '#4477BB' }}>
+            <ImageBackground
+              resizeMode="contain"
+              source={screenBG}
+              style={{
+                width: Dimensions.get('window').width,
+                height: Dimensions.get('window').height - 650,
+                position: 'absolute',
+                top: 8,
+              }}></ImageBackground>
+            <AttendanceStatusScreen />
+          </View >
+        )}
+      </Stack.Screen >
+    </Stack.Navigator >
   );
 };
 

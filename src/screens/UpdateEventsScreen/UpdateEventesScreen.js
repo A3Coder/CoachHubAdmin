@@ -386,6 +386,7 @@ const styles = StyleSheet.create({
   headerLeft: {
     flex: 1,
     flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
   },
   headerIcon: {

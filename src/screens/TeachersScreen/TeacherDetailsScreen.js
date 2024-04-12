@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from 'react';
+import React, { useContext, useRef, useState, useEffect } from 'react';
 import { StyleSheet, Text, View, KeyboardAvoidingView, ScrollView, Platform, TouchableOpacity, TouchableWithoutFeedback, Image, Alert, TextInput, StatusBar, } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 
@@ -10,30 +10,43 @@ import { faLock } from '@fortawesome/free-solid-svg-icons/faLock'
 //Importing Assets
 import BOTTOMVECTOR from '../../assets/images/bottomvector.png'
 import AVATAR from '../../assets/images/avatar.jpg'
+import ipAddress from '../../url';
 
 const TeacherDetailsScreen = () => {
     const navigation = useNavigation()
     const route = useRoute()
 
     //Fetch Data from Database or using Route
-    const teacherDetails = {
+    const [teacherDetails, setteacherDetails] = useState({
         profilePhoto: '',
-        teacherId: 'TV01',
-        emailId: 'md.aasifaliaadil786@gmail.com',
-        name: 'Md. Aasif Ali Aadil',
-        class: 'V',
-        subject: 'Science',
-        mobileNo: '9330852282',
-        salary: '500',
-        gender: 'Male',
-        aadharNo: '485313343995',
-        admissionYear: '2024',
-        admissionDate: '26/03/2024',
-        birthDate: '07/03/2002',
-        motherName: 'Jahan Ara Bano',
-        fatherName: 'Md. Shahabuddin',
-        permanentAddress: '22B, G. J. Khan Road, Kolkata - 700039'
+        teacherId: '',
+        emailId: '',
+        name: '',
+        class: '',
+        subject: '',
+        mobileNo: '',
+        salary: '',
+    })
+
+    //Fetch Teacher Details
+    const fetchDetails = async () => {
+        const response = await fetch(`http://${ipAddress}:3000/api/v1/teachers/${route.params.teacherId}`).then((res) => res.json())
+
+        var temp = {
+            profilePhoto: response[0].profilePhoto,
+            teacherId: response[0].teacherId,
+            emailId: response[0].emailId,
+            name: response[0].name,
+            class: response[0].class.join(" | "),
+            subject: response[0].subject,
+            mobileNo: String(response[0].mobileNo),
+            salary: String(response[0].salary),
+        }
+        setteacherDetails(temp)
     }
+    useEffect(() => {
+        fetchDetails()
+    }, [])
 
     return (
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.root}>
@@ -56,7 +69,7 @@ const TeacherDetailsScreen = () => {
                             <View style={{ height: 100, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                                 <View style={{ justifyContent: 'center', alignItems: 'center', borderWidth: 1, borderColor: '#C3D0EA', height: 100, width: 100, borderRadius: 50, overflow: 'hidden' }}>
                                     {
-                                        teacherDetails.profilePhoto != '' ? <Image source={profilePhoto} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <Image source={AVATAR} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                                      teacherDetails.profilePhoto != null && teacherDetails.profilePhoto != '' ? <Image source={{uri: teacherDetails.profilePhoto}} style={{ width: '100%', height: '100%', objectFit: 'cover' }} /> : <Image source={AVATAR} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                     }
                                 </View>
                             </View>

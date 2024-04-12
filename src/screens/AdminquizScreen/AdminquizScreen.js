@@ -219,16 +219,16 @@ const AdminquizScreen = () => {
 
                             <View style={{ marginTop: 15, width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 5, backgroundColor: '#4477BB' }}>
                                 <View style={{ width: '25%' }}>
-                                    <Text style={{ textAlign: 'center', color: 'white' }}>Student Name</Text>
+                                    <Text style={{fontSize: 12, textAlign: 'center', color: 'white' }}>Student Name</Text>
                                 </View>
                                 <View style={{ width: '25%' }}>
-                                    <Text style={{ textAlign: 'center', color: 'white' }}>Student Id</Text>
+                                    <Text style={{fontSize: 12, textAlign: 'center', color: 'white' }}>Student Id</Text>
                                 </View>
                                 <View style={{ width: '18%' }}>
-                                    <Text style={{ textAlign: 'center', color: 'white' }}>Timing</Text>
+                                    <Text style={{fontSize: 12, textAlign: 'center', color: 'white' }}>Timing</Text>
                                 </View>
                                 <View style={{ width: '18%' }}>
-                                    <Text style={{ textAlign: 'center', color: 'white' }}>Accuracy</Text>
+                                    <Text style={{fontSize: 12, textAlign: 'center', color: 'white' }}>Accuracy</Text>
                                 </View>
                             </View>
 
@@ -236,39 +236,31 @@ const AdminquizScreen = () => {
                                 queryValue != '' ? queryData.map((item, index) => (
                                     <View key={index} style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 0.5, borderBottomColor: 'grey', paddingHorizontal: 8, paddingVertical: 10, backgroundColor: 'white' }}>
                                         <View style={{ width: '25%' }}>
-                                            <Text style={{ textAlign: 'center', color: 'black' }}>{item.name}</Text>
+                                            <Text style={{ fontSize: 13, textAlign: 'center', color: 'black' }}>{item.name}</Text>
                                         </View>
                                         <View style={{ width: '25%' }}>
-                                            <Text style={{ textAlign: 'center', color: 'black' }}>{item.studentId}</Text>
+                                            <Text style={{ fontSize: 13, textAlign: 'center', color: 'black' }}>{item.studentId}</Text>
                                         </View>
                                         <View style={{ width: '18%', justifyContent: 'center', alignItems: 'center' }}>
-                                            <Pressable onPress={() => { handleStateChange(index, true) }} android_ripple={{ foreground: true, borderless: true }} style={{ width: 20, height: 20, borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
-                                                {
-                                                    item.isPresent === true && (<View style={[{ width: '80%', height: '80%', borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: '#79eb2d', justifyContent: 'center', alignItems: 'center' }]}></View>)
-                                                }
-                                            </Pressable>
+                                            <Text style={{ fontSize: 13, textAlign: 'center', color: 'black' }}>{item.timing}</Text>
                                         </View>
                                         <View style={{ width: '18%', justifyContent: 'center', alignItems: 'center' }}>
-                                            <Pressable onPress={() => { handleStateChange(index, false) }} android_ripple={{ foreground: true, borderless: true }} style={{ width: 20, height: 20, borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
-                                                {
-                                                    item.isPresent === false && (<View style={{ width: '80%', height: '80%', borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: '#f75843', justifyContent: 'center', alignItems: 'center' }}></View>)
-                                                }
-                                            </Pressable>
+                                            <Text style={{ fontSize: 13, textAlign: 'center', color: 'black' }}>{item.accuracy}</Text>
                                         </View>
                                     </View>
                                 )) : data.map((item, index) => (
                                     <View key={index} style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 0.5, borderBottomColor: 'grey', paddingHorizontal: 8, paddingVertical: 10, backgroundColor: 'white' }}>
                                         <View style={{ width: '25%' }}>
-                                            <Text style={{ textAlign: 'center', color: 'black' }}>{item.name}</Text>
+                                            <Text style={{ fontSize: 13, textAlign: 'center', color: 'black' }}>{item.name}</Text>
                                         </View>
                                         <View style={{ width: '25%' }}>
-                                            <Text style={{ textAlign: 'center', color: 'black' }}>{item.studentId}</Text>
+                                            <Text style={{ fontSize: 13, textAlign: 'center', color: 'black' }}>{item.studentId}</Text>
                                         </View>
                                         <View style={{ width: '18%', justifyContent: 'center', alignItems: 'center' }}>
-                                            <Text style={{ textAlign: 'center', color: 'black' }}>{item.timing}</Text>
+                                            <Text style={{ fontSize: 13, textAlign: 'center', color: 'black' }}>{item.timing}</Text>
                                         </View>
                                         <View style={{ width: '18%', justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text style={{ textAlign: 'center', color: 'black' }}>{item.accuracy}</Text>
+                                            <Text style={{ fontSize: 13, textAlign: 'center', color: 'black' }}>{item.accuracy}</Text>
                                         </View>
                                     </View>
                                 ))
@@ -302,6 +294,7 @@ const styles = StyleSheet.create({
     headerLeft: {
         flex: 1,
         flexDirection: 'row',
+        alignItems: 'center',
         gap: 8,
     },
     headerIcon: {
@@ -325,6 +318,7 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 30,
         borderTopRightRadius: 30,
         marginTop: 80,
+        paddingBottom: 60
     },
     dropdown: {
         height: 50,
@@ -363,7 +357,7 @@ const styles = StyleSheet.create({
         borderBottomRightRadius: 10,
         borderTopRightRadius: 10,
         borderTopLeftRadius: 10,
-        fontSize: 25,
+        fontSize: 20,
         marginHorizontal: 4,
         fontWeight: 'bold',
         marginTop: 20,

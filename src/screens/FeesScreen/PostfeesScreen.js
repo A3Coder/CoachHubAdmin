@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -18,7 +18,6 @@ import {
   Modal,
   Button
 } from 'react-native';
-import { Picker } from '@react-native-picker/picker'
 import { Dropdown } from 'react-native-element-dropdown';
 
 //FontAwesome Icons
@@ -31,46 +30,71 @@ import BOTTOMVECTOR from '../../assets/images/bottomvector.png'
 import DIVIDER from '../../assets/images/divider.png'
 import AVATAR from '../../assets/images/avatar.jpg'
 
-const selectClass = [
-  { label: 'Class V', value: 'V' },
-  { label: 'Class VI', value: 'VI' },
-  { label: 'Class VII', value: 'VII' },
-  { label: 'Class VIII', value: 'VIII' },
-  { label: 'Class IX', value: 'IX' },
-  { label: 'Class X', value: 'X' },
-];
-
-const SelectMonth = [
-
-  { label: 'January', value: 'January' },
-  { label: 'February', value: 'February' },
-  { label: 'March', value: 'March' },
-  { label: 'April', value: 'April' },
-  { label: 'May', value: 'May' },
-  { label: 'June', value: 'June' },
-  { label: 'July', value: 'July' },
-  { label: 'August', value: 'August' },
-  { label: 'September', value: 'September' },
-  { label: 'October', value: 'October' },
-  { label: 'November', value: 'November' },
-  { label: 'December', value: 'December' },
-
-];
+import ipAddress from '../../url';
 
 const PostDueFees = () => {
-  const [selectedClass, setSelectedClass] = useState('V');
-  const [selectedMonth, setSelectedMonth] = useState('April');
-  const [amount, setAmount] = useState('1200');
+  const [amount, setAmount] = useState();
 
-  const [value, setValue] = useState(null);
-  const [value2, setValue2] = useState(null);
+  const [value, setValue] = useState(null); //Class Value
+  const [value2, setValue2] = useState(null); //Month Value
 
-  const [isFocus, setIsFocus] = useState(false);
-  const [isFocus2, setIsFocus2] = useState(false);
+  const [isFocus, setIsFocus] = useState(false); //Class Focus
+  const [isFocus2, setIsFocus2] = useState(false); //Month Focus
+
+  //States for Class DropDown
+  const [selectClass, setselectClass] = useState([])
+
+  //States for Month DropDowna
+  const fetchMonth = () => {
+    const currentMonth = new Date().toLocaleDateString('en-GB').split("/")[1]
+    const monthDropdownLabels = [
+      { label: 'January', value: 'January' },
+      { label: 'February', value: 'February' },
+      { label: 'March', value: 'March' },
+      { label: 'April', value: 'April' },
+      { label: 'May', value: 'May' },
+      { label: 'June', value: 'June' },
+      { label: 'July', value: 'July' },
+      { label: 'August', value: 'August' },
+      { label: 'September', value: 'September' },
+      { label: 'October', value: 'October' },
+      { label: 'November', value: 'November' },
+      { label: 'December', value: 'December' },
+    ];
+    return monthDropdownLabels.slice(currentMonth - 1)
+  }
+  const [SelectMonth, setSelectMonth] = useState(fetchMonth())
+
+
+  //Fetch Data from Backend
+  const fetchClasses = async () => {
+    const response = await fetch(`http://${ipAddress}:3000/api/v1/classes`).then((res) => res.json())
+
+    var classes = []
+    response.forEach((item) => {
+      var temp = { label: `Class ${item.class}`, value: item.class }
+
+      classes.push(temp)
+    })
+
+    setselectClass(classes)
+  }
+  const fetchClassDetails = async (className) => {
+    const response = await fetch(`http://${ipAddress}:3000/api/v1/classes/${className}`).then((res) => res.json())
+
+    setAmount(String(response.feesAmount))
+  }
+  useEffect(() => {
+    fetchClasses()
+  }, [])
 
   const handlePost = () => {
     // Logic to post data
-    console.log(selectedClass, selectedMonth, amount);
+    if (value != null && value2 != null && amount != '') {
+      console.log(value, value2, parseInt(amount))
+    } else {
+      Alert.alert('All the Fields are Required')
+    }
   };
 
   return (
@@ -101,13 +125,14 @@ const PostDueFees = () => {
                   maxHeight={300}
                   labelField="label"
                   valueField="value"
-                  placeholder={!isFocus ? 'Select item' : '....'}
+                  placeholder={!isFocus ? 'Select Class' : '....'}
                   value={value}
                   onFocus={() => setIsFocus(true)}
                   onBlur={() => setIsFocus(false)}
                   onChange={item => {
                     setValue(item.value);
                     setIsFocus(false);
+                    fetchClassDetails(item.value)
                   }}
                 />
               </View>
@@ -122,7 +147,7 @@ const PostDueFees = () => {
                   maxHeight={300}
                   labelField="label"
                   valueField="value"
-                  placeholder={!isFocus2 ? 'Select item' : '....'}
+                  placeholder={!isFocus2 ? 'Select Month' : '....'}
                   value={value2}
                   onFocus={() => setIsFocus2(true)}
                   onBlur={() => setIsFocus2(false)}
@@ -137,8 +162,8 @@ const PostDueFees = () => {
                 <Text style={{ color: 'black', fontSize: 16 }}>Amount</Text>
                 <TextInput
                   style={styles.input}
+                  editable={false}
                   value={amount}
-                  onChangeText={setAmount}
                   keyboardType='numeric'
                 />
               </View>
@@ -147,7 +172,7 @@ const PostDueFees = () => {
           {/* <Image style={styles.img} source={BOTTOMVECTOR}/> */}
         </ScrollView>
 
-        <TouchableOpacity onPress={() => console.log('Pressed Post')} activeOpacity={0.7} style={{ width: '90%', position: 'absolute', bottom: 0, marginVertical: 15, alignSelf: 'center' }}>
+        <TouchableOpacity onPress={handlePost} activeOpacity={0.7} style={{ width: '90%', position: 'absolute', bottom: 0, marginVertical: 15, alignSelf: 'center' }}>
           <View>
             <Text style={styles.btn}>POST</Text>
           </View>
@@ -184,10 +209,12 @@ const styles = StyleSheet.create({
   },
   input: {
     height: 40,
+    color: 'black',
     borderColor: 'gray',
     borderBottomWidth: 0.5,
     marginTop: 20,
     padding: 10,
+    fontWeight: '900'
   },
 
   headerContainer: {
@@ -202,6 +229,7 @@ const styles = StyleSheet.create({
   headerLeft: {
     flex: 1,
     flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
   },
   headerIcon: {
@@ -264,7 +292,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 10,
     borderTopRightRadius: 10,
     borderTopLeftRadius: 10,
-    fontSize: 25,
+    fontSize: 20,
     marginHorizontal: 4,
     fontWeight: 'bold',
     marginTop: 20,

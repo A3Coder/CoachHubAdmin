@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     StyleSheet,
     Text,
@@ -18,7 +18,6 @@ import {
     Modal
 } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
-import DateTimePicker from 'react-native-ui-datepicker';
 
 import { useNavigation } from '@react-navigation/native';
 
@@ -28,21 +27,10 @@ import { faLessThan } from '@fortawesome/free-solid-svg-icons/faLessThan'
 import { faGreaterThan, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 
 //Importing Assets
-import BOTTOMVECTOR from '../../assets/images/bottomvector.png'
 import DIVIDER from '../../assets/images/divider.png'
-import AVATAR from '../../assets/images/avatar.jpg'
-
-const selectClass = [
-    { label: 'Class V', value: 'V' },
-    { label: 'Class VI', value: 'VI' },
-    { label: 'Class VII', value: 'VII' },
-    { label: 'Class VIII', value: 'VIII' },
-    { label: 'Class IX', value: 'IX' },
-    { label: 'Class X', value: 'X' },
-];
+import ipAddress from '../../url';
 
 const SelectMonth = [
-    
     { label: 'January', value: 'January' },
     { label: 'February', value: 'February' },
     { label: 'March', value: 'March' },
@@ -55,69 +43,28 @@ const SelectMonth = [
     { label: 'October', value: 'October' },
     { label: 'November', value: 'November' },
     { label: 'December', value: 'December' },
-
 ];
-
-
-const fees = [
-    {
-        studentId: 'SV202401',
-        name: 'Md. Aasif Ali Aadil',
-        isPaid: true
-    },
-    {
-        studentId: 'SV202402',
-        name: 'Md. Abdul Rab',
-        isPaid: false
-    },
-    {
-        studentId: 'SV202403',
-        name: 'Md. Amir',
-        isPaid: true
-    },
-    {
-        studentId: 'SV202404',
-        name: 'Nitesh Kumar',
-        isPaid: true
-    },
-    {
-        studentId: 'SV202405',
-        name: 'Md. Ashfaque',
-        isPaid: false
-    },
-    {
-        studentId: 'SV202406',
-        name: 'Hari Narayan Mishra',
-        isPaid: ''
-    },
-]
 
 const FeesScreen = () => {
     const navigation = useNavigation()
 
-    const [value, setValue] = useState(null);
-    const [value2, setValue2] = useState(null);
+    const [classValue, setclassValue] = useState(null);
+    const [monthValue, setmonthValue] = useState(null);
 
-    const [isFocus, setIsFocus] = useState(false);
-    const [isFocus2, setIsFocus2] = useState(false);
+    const [isFocusClass, setisFocusClass] = useState(false);
+    const [isFocusMonth, setisFocusMonth] = useState(false);
 
-    //States for Date Inputs
-    const [date, setdate] = useState(new  Date())
-    const [datePicker, setdatePicker] = useState(false)
-    const [modal, setmodal] = useState(false)
-    //states for Month Inputs
-    //const[month, setSelectedMonth] = useState(new month())
+    //States for Class DropDown
+    const [selectClass, setselectClass] = useState([])
 
-    //States for Attendance Data
-    const [data, setdata] = useState(fees)
+    //States for Fees Data
+    const [data, setdata] = useState([])
     const [selectedOption, setselectedOption] = useState(null)
     const handleStateChange = (index, value) => {
-        var temp = data
-
-        temp[index].isPaid = value
-        setdata(temp)
+        const updatedData = [...data]
+        updatedData[index] = { ...updatedData[index], isPaid: value }
+        setdata(updatedData)
         setselectedOption(index)
-        console.log(data)
     }
 
     //States for Query Data
@@ -139,6 +86,61 @@ const FeesScreen = () => {
 
         setqueryData(queryData)
     }
+
+    //Fetch Data from Backend
+    const fetchClasses = async () => {
+        const response = await fetch(`http://${ipAddress}:3000/api/v1/classes`).then((res) => res.json())
+
+        var classes = []
+        response.forEach((item) => {
+            var temp = { label: `Class ${item.class}`, value: item.class }
+
+            classes.push(temp)
+        })
+
+        setselectClass(classes)
+    }
+    //Fetch Fees Status from Backend
+    const fetchFeesStatus = async () => {
+        if (classValue && monthValue) {
+            const response = await fetch(`http://${ipAddress}:3000/api/v1/fees/search/${classValue}/${monthValue}`).then((res) => res.json())
+
+            if (response.success === false) {
+                setdata([
+                    {
+                        studentId: 'Not Found',
+                        name: 'Not Found',
+                        isPaid: null
+                    }
+                ])
+                return
+            } else {
+                var data = []
+                response[0].data.forEach((item) => {
+                    var status = null
+                    item.feesDetails.forEach((item) => {
+                        if (item.monthName === monthValue) {
+                            status = item.isPaid
+                        }
+                    })
+                    var temp = {
+                        studentId: item.studentId,
+                        name: item.name,
+                        isPaid: status
+                    }
+
+                    data.push(temp)
+                })
+                setdata(data)
+            }
+        } else {
+            return
+        }
+    }
+    useEffect(() => {
+        fetchClasses()
+        fetchFeesStatus()
+    }, [classValue, monthValue])
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent' }}>
@@ -171,13 +173,13 @@ const FeesScreen = () => {
                                         maxHeight={300}
                                         labelField="label"
                                         valueField="value"
-                                        placeholder={!isFocus ? 'Select item' : '....'}
-                                        value={value}
-                                        onFocus={() => setIsFocus(true)}
-                                        onBlur={() => setIsFocus(false)}
+                                        placeholder={!isFocusClass ? 'Select item' : '....'}
+                                        value={classValue}
+                                        onFocus={() => setisFocusClass(true)}
+                                        onBlur={() => setisFocusClass(false)}
                                         onChange={item => {
-                                            setValue(item.value);
-                                            setIsFocus(false);
+                                            setclassValue(item.value);
+                                            setisFocusClass(false);
                                         }}
                                     />
                                 </View>
@@ -191,29 +193,18 @@ const FeesScreen = () => {
                                         maxHeight={300}
                                         labelField="label"
                                         valueField="value"
-                                        placeholder={!isFocus2 ? 'Select item' : '....'}
-                                        value={value2}
-                                        onFocus={() => setIsFocus2(true)}
-                                        onBlur={() => setIsFocus2(false)}
+                                        placeholder={!isFocusMonth ? 'Select item' : '....'}
+                                        value={monthValue}
+                                        onFocus={() => setisFocusMonth(true)}
+                                        onBlur={() => setisFocusMonth(false)}
                                         onChange={item => {
-                                            setValue2(item.value);
-                                            setIsFocus2(false);
+                                            setmonthValue(item.value);
+                                            setisFocusMonth(false);
                                         }}
                                     />
-                                   
+
                                 </View>
                             </View>
-
-                            <Modal visible={modal} transparent={true} animationType='slide'>
-                                <Pressable onPress={() => setmodal(false)} style={{ flex: 1, padding: 15, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', gap: 10 }}>
-                                    <View style={{ width: '100%', backgroundColor: '#4477BB', borderRadius: 10, padding: 10 }}>
-                                        <Text style={{ fontSize: 20, textAlign: 'center', fontWeight: 900, color: 'white' }}>Select Date</Text>
-                                    </View>
-                                    <View style={{ backgroundColor: 'white', padding: 10, borderRadius: 15 }}>
-                                        <DateTimePicker weekDaysTextStyle={{ color: 'black' }} headerTextStyle={{ color: 'black' }} calendarTextStyle={{ color: 'black' }} selectedItemColor='#4477BB' mode="single" date={date} onChange={(params) => { setdate(new Date(params.date)); setmodal(false) }} />
-                                    </View>
-                                </Pressable>
-                            </Modal>
 
                             <View style={{ width: '100%', }}>
                                 <Image source={DIVIDER} resizeMode='contain' style={{ width: '100%' }}></Image>
@@ -231,16 +222,16 @@ const FeesScreen = () => {
 
                             <View style={{ marginTop: 15, width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 5, backgroundColor: '#4477BB' }}>
                                 <View style={{ width: '25%' }}>
-                                    <Text style={{ textAlign: 'center', color: 'white' }}>Student Name</Text>
+                                    <Text style={{ fontSize: 12, textAlign: 'center', color: 'white' }}>Student Name</Text>
                                 </View>
                                 <View style={{ width: '25%' }}>
-                                    <Text style={{ textAlign: 'center', color: 'white' }}>Student Id</Text>
+                                    <Text style={{ fontSize: 12, textAlign: 'center', color: 'white' }}>Student Id</Text>
                                 </View>
                                 <View style={{ width: '18%' }}>
-                                    <Text style={{ textAlign: 'center', color: 'white' }}>Paid</Text>
+                                    <Text style={{ fontSize: 12, textAlign: 'center', color: 'white' }}>Paid</Text>
                                 </View>
                                 <View style={{ width: '18%' }}>
-                                    <Text style={{ textAlign: 'center', color: 'white' }}>Due</Text>
+                                    <Text style={{ fontSize: 12, textAlign: 'center', color: 'white' }}>Due</Text>
                                 </View>
                             </View>
 
@@ -248,22 +239,22 @@ const FeesScreen = () => {
                                 queryValue != '' ? queryData.map((item, index) => (
                                     <View key={index} style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 0.5, borderBottomColor: 'grey', paddingHorizontal: 8, paddingVertical: 10, backgroundColor: 'white' }}>
                                         <View style={{ width: '25%' }}>
-                                            <Text style={{ textAlign: 'center', color: 'black' }}>{item.name}</Text>
+                                            <Text style={{ fontSize: 13, textAlign: 'center', color: 'black' }}>{item.name}</Text>
                                         </View>
                                         <View style={{ width: '25%' }}>
-                                            <Text style={{ textAlign: 'center', color: 'black' }}>{item.studentId}</Text>
+                                            <Text style={{ fontSize: 13, textAlign: 'center', color: 'black' }}>{item.studentId}</Text>
                                         </View>
                                         <View style={{ width: '18%', justifyContent: 'center', alignItems: 'center' }}>
                                             <Pressable onPress={() => { handleStateChange(index, true) }} android_ripple={{ foreground: true, borderless: true }} style={{ width: 20, height: 20, borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
                                                 {
-                                                    item.isPresent === true && (<View style={[{ width: '80%', height: '80%', borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: '#79eb2d', justifyContent: 'center', alignItems: 'center' }]}></View>)
+                                                    item.isPaid === true && (<View style={[{ width: '80%', height: '80%', borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: '#79eb2d', justifyContent: 'center', alignItems: 'center' }]}></View>)
                                                 }
                                             </Pressable>
                                         </View>
                                         <View style={{ width: '18%', justifyContent: 'center', alignItems: 'center' }}>
                                             <Pressable onPress={() => { handleStateChange(index, false) }} android_ripple={{ foreground: true, borderless: true }} style={{ width: 20, height: 20, borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
                                                 {
-                                                    item.isPresent === false && (<View style={{ width: '80%', height: '80%', borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: '#f75843', justifyContent: 'center', alignItems: 'center' }}></View>)
+                                                    item.isPaid === false && (<View style={{ width: '80%', height: '80%', borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: '#f75843', justifyContent: 'center', alignItems: 'center' }}></View>)
                                                 }
                                             </Pressable>
                                         </View>
@@ -271,22 +262,22 @@ const FeesScreen = () => {
                                 )) : data.map((item, index) => (
                                     <View key={index} style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 0.5, borderBottomColor: 'grey', paddingHorizontal: 8, paddingVertical: 10, backgroundColor: 'white' }}>
                                         <View style={{ width: '25%' }}>
-                                            <Text style={{ textAlign: 'center', color: 'black' }}>{item.name}</Text>
+                                            <Text style={{ fontSize: 13, textAlign: 'center', color: 'black' }}>{item.name}</Text>
                                         </View>
                                         <View style={{ width: '25%' }}>
-                                            <Text style={{ textAlign: 'center', color: 'black' }}>{item.studentId}</Text>
+                                            <Text style={{ fontSize: 13, textAlign: 'center', color: 'black' }}>{item.studentId}</Text>
                                         </View>
                                         <View style={{ width: '18%', justifyContent: 'center', alignItems: 'center' }}>
                                             <Pressable onPress={() => { handleStateChange(index, true) }} android_ripple={{ foreground: true, borderless: true }} style={{ width: 20, height: 20, borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
                                                 {
-                                                    item.isPresent === true && (<View style={[{ width: '80%', height: '80%', borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: '#79eb2d', justifyContent: 'center', alignItems: 'center' }]}></View>)
+                                                    item.isPaid === true && (<View style={[{ width: '80%', height: '80%', borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: '#79eb2d', justifyContent: 'center', alignItems: 'center' }]}></View>)
                                                 }
                                             </Pressable>
                                         </View>
                                         <View style={{ width: '18%', justifyContent: 'center', alignItems: 'center' }}>
                                             <Pressable onPress={() => { handleStateChange(index, false) }} android_ripple={{ foreground: true, borderless: true }} style={{ width: 20, height: 20, borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
                                                 {
-                                                    item.isPresent === false && (<View style={{ width: '80%', height: '80%', borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: '#f75843', justifyContent: 'center', alignItems: 'center' }}></View>)
+                                                    item.isPaid === false && (<View style={{ width: '80%', height: '80%', borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: '#f75843', justifyContent: 'center', alignItems: 'center' }}></View>)
                                                 }
                                             </Pressable>
                                         </View>
@@ -299,9 +290,9 @@ const FeesScreen = () => {
                         {/* <Image style={styles.img} source={BOTTOMVECTOR}/> */}
                     </View>
                 </ScrollView>
-                <TouchableOpacity onPress={() => navigation.navigate('PostFees')} activeOpacity={0.7} style={{ width: '90%', position: 'absolute', bottom: 0, marginVertical: 15, alignSelf: 'center' }}>
+                <TouchableOpacity onPress={() => navigation.navigate('Post Fees')} activeOpacity={0.7} style={{ width: '90%', position: 'absolute', bottom: 0, marginVertical: 15, alignSelf: 'center' }}>
                     <View>
-                        <Text style={styles.btn}>POST DUE FEES </Text>
+                        <Text style={styles.btn}>POST DUE FEES</Text>
                     </View>
                 </TouchableOpacity>
             </KeyboardAvoidingView>
@@ -322,6 +313,7 @@ const styles = StyleSheet.create({
     headerLeft: {
         flex: 1,
         flexDirection: 'row',
+        alignItems: 'center',
         gap: 8,
     },
     headerIcon: {
@@ -345,6 +337,7 @@ const styles = StyleSheet.create({
         borderTopLeftRadius: 30,
         borderTopRightRadius: 30,
         marginTop: 80,
+        paddingBottom: 55,
     },
     dropdown: {
         height: 50,
@@ -383,7 +376,7 @@ const styles = StyleSheet.create({
         borderBottomRightRadius: 10,
         borderTopRightRadius: 10,
         borderTopLeftRadius: 10,
-        fontSize: 25,
+        fontSize: 20,
         marginHorizontal: 4,
         fontWeight: 'bold',
         marginTop: 20,

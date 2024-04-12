@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     StyleSheet,
     Text,
@@ -23,56 +23,27 @@ import { useNavigation } from '@react-navigation/native';
 //FontAwesome Icons
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faLessThan } from '@fortawesome/free-solid-svg-icons/faLessThan'
-import { faGreaterThan, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
+import { faGreaterThan, faMagnifyingGlass, faRetweet } from '@fortawesome/free-solid-svg-icons'
 
 //Importing Assets
 import BOTTOMVECTOR from '../../assets/images/bottomvector.png'
 import DIVIDER from '../../assets/images/divider.png'
 import AVATAR from '../../assets/images/avatar.jpg'
-
-const selectClass = [
-    { label: 'Class V', value: 'V' },
-    { label: 'Class VI', value: 'VI' },
-    { label: 'Class VII', value: 'VII' },
-    { label: 'Class VIII', value: 'VIII' },
-    { label: 'Class IX', value: 'IX' },
-    { label: 'Class X', value: 'X' },
-];
-
-const studentsData = [
-    {
-        profilePhoto: '',
-        studentId: 'SV202401',
-        studentName: 'Md. Aasif Ali Aadil'
-    },
-    {
-        profilePhoto: '',
-        studentId: 'SV202402',
-        studentName: 'Md. Abdul Rab'
-    },
-    {
-        profilePhoto: '',
-        studentId: 'SV202403',
-        studentName: 'Nitesh Kumar'
-    },
-    {
-        profilePhoto: '',
-        studentId: 'SV202404',
-        studentName: 'Md. Amir'
-    },
-]
+import ipAddress from '../../url';
 
 const QueryDataComponent = ({ item, index, data, navigate }) => {
     if (data === true) {
         return (
-            <Pressable key={index} onPress={navigate} android_ripple={{ foreground: true, borderless: false, color: '#4477BB' }} style={{ marginTop: 15, width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8, overflow: 'hidden', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 10, borderWidth: 1, borderColor: '#4477BB', borderStyle: 'dashed' }}>
+            <Pressable key={index} onPress={() => navigate(item.studentId)} android_ripple={{ foreground: true, borderless: false, color: '#4477BB' }} style={{ marginTop: 15, width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8, overflow: 'hidden', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 10, borderWidth: 1, borderColor: '#4477BB', borderStyle: 'dashed' }}>
                 <View style={{ width: 80, height: 80, borderRadius: 50, borderWidth: 1, borderColor: 'grey', overflow: 'hidden', backgroundColor: 'white' }}>
-                    <Image source={AVATAR} style={{ width: '100%', height: '100%' }} resizeMode='contain'></Image>
+                    {
+                        item.profilePhoto != "" ? <Image source={{ uri: item.profilePhoto }} style={{ width: '100%', height: '100%' }} resizeMode='contain'></Image> : <Image source={AVATAR} style={{ width: '100%', height: '100%' }} resizeMode='contain'></Image>
+                    }
                 </View>
                 <View style={{ flex: 1, height: '100%', backgroundColor: 'white', }}>
                     <View style={{ flex: 1, justifyContent: 'center', }}>
-                        <Text style={{ fontSize: 18, fontWeight: 500, color: 'grey' }}>{item.studentId}</Text>
-                        <Text style={{ fontSize: 25, fontWeight: 900, color: 'black', }}>{item.studentName}</Text>
+                        <Text style={{ fontSize: 16, fontWeight: 500, color: 'grey' }}>{item.studentId}</Text>
+                        <Text style={{ fontSize: 20, fontWeight: 900, color: 'black', }}>{item.studentName}</Text>
                     </View>
                 </View>
                 <View style={{}}>
@@ -97,11 +68,12 @@ const QueryDataComponent = ({ item, index, data, navigate }) => {
 const StudentsScreen = () => {
     const navigation = useNavigation()
 
+    //States for Class Dropdown
     const [value, setValue] = useState(null);
-    const [value2, setValue2] = useState(null);
-
     const [isFocus, setIsFocus] = useState(false);
-    const [isFocus2, setIsFocus2] = useState(false);
+    const [selectClass, setselectClass] = useState([])
+
+    const [studentsData, setstudentsData] = useState([])
 
     //States for Query Data
     const [queryData, setqueryData] = useState([])
@@ -123,9 +95,46 @@ const StudentsScreen = () => {
         setqueryData(queryData)
     }
 
+    //Fetch Data from Backend
+    const fetchClasses = async () => {
+        const response = await fetch(`http://${ipAddress}:3000/api/v1/classes`).then((res) => res.json())
+
+        var classes = []
+        response.forEach((item) => {
+            var temp = { label: `Class ${item.class}`, value: item.class }
+
+            classes.push(temp)
+        })
+
+        setselectClass(classes)
+    }
+    const fetchStudents = async (className) => {
+        const response = await fetch(`http://${ipAddress}:3000/api/v1/students/search/${className}`).then((res) => res.json())
+
+        var students = []
+        if (response.success === false) {
+            setstudentsData([])
+            return
+        }
+        response.forEach((item) => {
+            var temp = {
+                profilePhoto: item.profilePhoto,
+                studentId: item.studentId,
+                studentName: item.name
+            }
+
+            students.push(temp)
+        })
+
+        setstudentsData(students)
+    }
+    useEffect(() => {
+        fetchClasses()
+    }, [])
+
     //Handle Navigation
-    const handleNavigation = () => {
-        navigation.navigate('Student Details')
+    const handleNavigation = (studentId) => {
+        navigation.navigate('Student Details', { studentId: studentId })
     }
 
     return (
@@ -166,6 +175,7 @@ const StudentsScreen = () => {
                                 onChange={item => {
                                     setValue(item.value);
                                     setIsFocus(false);
+                                    fetchStudents(item.value)
                                 }}
                             />
 
@@ -186,28 +196,31 @@ const StudentsScreen = () => {
                             {
                                 queryValue != '' ? queryData.length != 0 ? queryData.map((item, index) => (
                                     <QueryDataComponent key={index} data={true} item={item} index={index} navigate={handleNavigation}></QueryDataComponent>
-                                )) : <QueryDataComponent data={false}></QueryDataComponent> : 
-                                studentsData.map((item, index) => (
-                                    <Pressable key={index} onPress={handleNavigation} android_ripple={{ foreground: true, borderless: false, color: '#4477BB' }} style={{ marginTop: 15, width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8, overflow: 'hidden', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 10, borderWidth: 1, borderColor: '#4477BB', borderStyle: 'dashed' }}>
-                                        <View style={{ width: 80, height: 80, borderRadius: 50, borderWidth: 1, borderColor: 'grey', overflow: 'hidden', backgroundColor: 'white' }}>
-                                            <Image source={AVATAR} style={{ width: '100%', height: '100%' }} resizeMode='contain'></Image>
-                                        </View>
-                                        <View style={{ flex: 1, height: '100%', backgroundColor: 'white', }}>
-                                            <View style={{ flex: 1, justifyContent: 'center', }}>
-                                                <Text style={{ fontSize: 18, fontWeight: 500, color: 'grey' }}>{item.studentId}</Text>
-                                                <Text style={{ fontSize: 25, fontWeight: 900, color: 'black', }}>{item.studentName}</Text>
+                                )) : <QueryDataComponent data={false}></QueryDataComponent> :
+                                    studentsData.map((item, index) => (
+                                        <Pressable key={index} onPress={() => handleNavigation(item.studentId)} android_ripple={{ foreground: true, borderless: false, color: '#4477BB' }} style={{ marginTop: 15, width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', gap: 8, overflow: 'hidden', paddingHorizontal: 15, paddingVertical: 8, borderRadius: 10, borderWidth: 1, borderColor: '#4477BB', borderStyle: 'dashed' }}>
+                                            <View style={{ width: 80, height: 80, borderRadius: 50, borderWidth: 1, borderColor: 'grey', overflow: 'hidden', backgroundColor: 'white' }}>
+                                                {
+                                                    item.profilePhoto != "" ? <Image source={{ uri: item.profilePhoto }} style={{ width: '100%', height: '100%' }} resizeMode='contain'></Image> : <Image source={AVATAR} style={{ width: '100%', height: '100%' }} resizeMode='contain'></Image>
+                                                }
                                             </View>
-                                        </View>
-                                        <View style={{}}>
-                                            <FontAwesomeIcon icon={faGreaterThan} size={20} color='#4477BB'></FontAwesomeIcon>
-                                        </View>
-                                    </Pressable>
-                                ))
+                                            <View style={{ flex: 1, height: '100%', backgroundColor: 'white', }}>
+                                                <View style={{ flex: 1, justifyContent: 'center', }}>
+                                                    <Text style={{ fontSize: 16, fontWeight: 500, color: 'grey' }}>{item.studentId}</Text>
+                                                    <Text style={{ fontSize: 20, fontWeight: 900, color: 'black', }}>{item.studentName}</Text>
+                                                </View>
+                                            </View>
+                                            <View style={{}}>
+                                                <FontAwesomeIcon icon={faGreaterThan} size={20} color='#4477BB'></FontAwesomeIcon>
+                                            </View>
+                                        </Pressable>
+                                    ))
                             }
                         </View>
                         <Image
                             style={styles.img}
                             source={BOTTOMVECTOR}
+                            resizeMode='contain'
                         />
                     </View>
                 </ScrollView>
@@ -229,6 +242,7 @@ const styles = StyleSheet.create({
     headerLeft: {
         flex: 1,
         flexDirection: 'row',
+        alignItems: 'center',
         gap: 8,
     },
     headerIcon: {
@@ -299,8 +313,11 @@ const styles = StyleSheet.create({
 
     img: {
         flex: 1,
+        position: 'absolute',
+        bottom: 0,
         justifyContent: 'flex-end',
         marginTop: 90,
+        opacity: 0.8,
         width: '100%',
     },
 });

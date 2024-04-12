@@ -241,6 +241,7 @@ const styles = StyleSheet.create({
   headerLeft: {
     flex: 1,
     flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
   },
   headerIcon: {
@@ -302,7 +303,7 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 10,
     borderTopRightRadius: 10,
     borderTopLeftRadius: 10,
-    fontSize: 16,
+    fontSize: 20,
     marginLeft: 4,
     marginRight: 4,
     fontWeight: 'bold',
