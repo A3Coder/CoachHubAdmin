@@ -2,9 +2,9 @@ import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, KeyboardAvoidingView, ScrollView, SafeAreaView, Platform, TouchableOpacity, TouchableWithoutFeedback, Image, Alert, TextInput, StatusBar, Pressable, } from 'react-native';
 import { Dropdown } from 'react-native-element-dropdown';
 import { Calendar } from 'react-native-calendars'
-import { Svg, Circle, G } from 'react-native-svg';
+import { Svg, Circle, G, fetchText } from 'react-native-svg';
 
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
 //FontAwesome Icons
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
@@ -15,7 +15,7 @@ import { faGreaterThan, faMagnifyingGlass } from '@fortawesome/free-solid-svg-ic
 import DIVIDER from '../../assets/images/divider.png'
 import ipAddress from '../../url';
 
-const SelectMonth = [
+const selectMonth = [
     { label: 'January', value: 'January' },
     { label: 'February', value: 'February' },
     { label: 'March', value: 'March' },
@@ -32,10 +32,12 @@ const SelectMonth = [
 
 const AttendanceStatusScreen = () => {
     const navigation = useNavigation()
+    const route = useRoute()
 
     //States for Dropdown Month
     const [monthValue, setmonthValue] = useState(null);
     const [isFocusMonth, setisFocusMonth] = useState(false);
+    const [SelectMonth, setSelectMonth] = useState(selectMonth)
 
     //State for Calendar Month
     const date = new Date().toLocaleDateString('en-GB').split('/')
@@ -47,10 +49,47 @@ const AttendanceStatusScreen = () => {
         setcurrentMonth(`${date[2]}-${String(index + 1).padStart(2, 0)}-01`)
     }
 
+    //State for Attendance Data
+    const [attendanceData, setattendanceData] = useState([])
+
+    //Absent Data - Populate via Backend
+    const [absentData, setabsentData] = useState({
+        '2024-04-05': { selected: true, selectedColor: 'red', disableTouchEvent: true },
+        '2024-04-08': { selected: true, selectedColor: 'red', disableTouchEvent: true },
+        '2024-04-09': { selected: true, selectedColor: 'red', disableTouchEvent: true },
+        '2024-04-15': { selected: true, selectedColor: 'red', disableTouchEvent: true },
+        '2024-04-16': { selected: true, selectedColor: 'red', disableTouchEvent: true },
+        '2024-04-23': { selected: true, selectedColor: 'red', disableTouchEvent: true },
+        '2024-04-24': { selected: true, selectedColor: 'red', disableTouchEvent: true },
+    })
+
+    //Present Data - Populate via Backend
+    const [presentData, setpresentData] = useState({
+        '2024-04-01': { selected: true, selectedColor: 'green', disableTouchEvent: true },
+        '2024-04-02': { selected: true, selectedColor: 'green', disableTouchEvent: true },
+        '2024-04-03': { selected: true, selectedColor: 'green', disableTouchEvent: true },
+        '2024-04-06': { selected: true, selectedColor: 'green', disableTouchEvent: true },
+        '2024-04-07': { selected: true, selectedColor: 'green', disableTouchEvent: true },
+        '2024-04-10': { selected: true, selectedColor: 'green', disableTouchEvent: true },
+        '2024-04-12': { selected: true, selectedColor: 'green', disableTouchEvent: true },
+        '2024-04-13': { selected: true, selectedColor: 'green', disableTouchEvent: true },
+        '2024-04-14': { selected: true, selectedColor: 'green', disableTouchEvent: true },
+        '2024-04-17': { selected: true, selectedColor: 'green', disableTouchEvent: true },
+        '2024-04-21': { selected: true, selectedColor: 'green', disableTouchEvent: true },
+        '2024-04-22': { selected: true, selectedColor: 'green', disableTouchEvent: true },
+        '2024-04-26': { selected: true, selectedColor: 'green', disableTouchEvent: true },
+        '2024-04-27': { selected: true, selectedColor: 'green', disableTouchEvent: true },
+        '2024-04-28': { selected: true, selectedColor: 'green', disableTouchEvent: true },
+        '2024-04-30': { selected: true, selectedColor: 'green', disableTouchEvent: true }
+    })
+
     //States for Data Overview
-    const [totalMonths, settotalMonths] = useState(0)
-    const [totalPaidMonths, settotalPaidMonths] = useState(0)
-    const [totalDue, settotalDue] = useState(0)
+    const [monthPercentage, setmonthPercentage] = useState(null)
+    const [overallPercentage, setoverallPercentage] = useState(null)
+
+    const [workingDays, setworkingDays] = useState(0)
+    const [totalAbsent, settotalAbsent] = useState(0)
+    const [totalPresent, settotalPresent] = useState(0)
 
     //Variables for SVG component
     const CIRCUMFERENCE = 2 * Math.PI * ((150 / 2) - (8 / 2))
@@ -59,36 +98,93 @@ const AttendanceStatusScreen = () => {
         overall: (CIRCUMFERENCE * 90) / 100
     })
 
-    //Absent Data - Populate via Backend
-    var absentData = {
-        '2024-04-05' : { selected: true, selectedColor: 'red', disableTouchEvent: true },
-        '2024-04-08' : { selected: true, selectedColor: 'red', disableTouchEvent: true },
-        '2024-04-09' : { selected: true, selectedColor: 'red', disableTouchEvent: true },
-        '2024-04-15' : { selected: true, selectedColor: 'red', disableTouchEvent: true },
-        '2024-04-16' : { selected: true, selectedColor: 'red', disableTouchEvent: true },
-        '2024-04-23' : { selected: true, selectedColor: 'red', disableTouchEvent: true },
-        '2024-04-24' : { selected: true, selectedColor: 'red', disableTouchEvent: true },
+    //Month Dropdown Logic
+    const fetchMonths = () => {
+        var currentMonthIndex = new Date().toLocaleDateString('en-GB').split('/')[1]
+        setSelectMonth(selectMonth.slice(0, parseInt(currentMonthIndex)))
+    }
+    //Fetch Data from Backend
+    const fetchAttendanceData = async () => {
+        const response = await fetch(`http://${ipAddress}:3000/api/v1/attendances/search/${route.params.studentId}`).then((res) => res.json())
+
+        if (response.success == false) {
+            return
+        }
+
+        setattendanceData(response)
+        const presentDates = response.filter((item) => item.attendanceDetails.isPresent === true)
+        const absentDates = response.filter((item) => item.attendanceDetails.isPresent === false)
+
+        var presentData = {}
+        presentDates.forEach((item) => {
+            var date = item.dateofMonth.split('/')
+            presentData[`${date[2]}-${date[1]}-${date[0]}`] = { selected: true, selectedColor: 'green', disableTouchEvent: true }
+        })
+        setpresentData(presentData)
+
+        var absentData = {}
+        absentDates.forEach((item) => {
+            var date = item.dateofMonth.split('/')
+            absentData[`${date[2]}-${date[1]}-${date[0]}`] = { selected: true, selectedColor: 'red', disableTouchEvent: true }
+        })
+        setabsentData(absentData)
+    }
+    //Caculate and Visualize Data
+    const calculateData = () => {
+        if (!attendanceData.length) {
+            return
+        }
+        const presentDates = attendanceData.filter((item) => item.attendanceDetails.isPresent === true)
+        const absentDates = attendanceData.filter((item) => item.attendanceDetails.isPresent === false)
+
+        var tP = 0
+        var wDs = 0
+        var overallTP = 0
+        var overallWDs = 0
+        settotalPresent(0)
+        setworkingDays(0)
+        presentDates.forEach((item) => {
+            var date = item.dateofMonth.split('/')
+            if (date[1] === currentMonth.slice(5, 7)) {
+                tP = tP + 1
+                wDs = wDs + 1
+                settotalPresent((prev) => prev + 1)
+                setworkingDays((prev) => prev + 1)
+            }
+            overallTP = overallTP + 1
+            overallWDs = overallWDs + 1
+        })
+
+        settotalAbsent(0)
+        absentDates.forEach((item) => {
+            var date = item.dateofMonth.split('/')
+            if (date[1] === currentMonth.slice(5, 7)) {
+                wDs = wDs + 1
+                settotalAbsent((prev) => prev + 1)
+                setworkingDays((prev) => prev + 1)
+            }
+            overallWDs = overallWDs + 1
+        })
+
+        //Calcuting for SVG Element Data Visualization
+        var percentage = Math.ceil((tP / wDs) * 100)
+        var overallPercentage = Math.ceil((overallTP / overallWDs) * 100)
+        setmonthPercentage(percentage)
+        setoverallPercentage(overallPercentage)
+        setlessCircumference({
+            thisMonth: (CIRCUMFERENCE * percentage) / 100,
+            overall: (CIRCUMFERENCE * overallPercentage) / 100
+        })
     }
 
-    //Present Data - Populate via Backend
-    var presentData = {
-        '2024-04-01' : { selected: true, selectedColor: 'green', disableTouchEvent: true },
-        '2024-04-02' : { selected: true, selectedColor: 'green', disableTouchEvent: true },
-        '2024-04-03' : { selected: true, selectedColor: 'green', disableTouchEvent: true },
-        '2024-04-06' : { selected: true, selectedColor: 'green', disableTouchEvent: true },
-        '2024-04-07' : { selected: true, selectedColor: 'green', disableTouchEvent: true },
-        '2024-04-10' : { selected: true, selectedColor: 'green', disableTouchEvent: true },
-        '2024-04-12' : { selected: true, selectedColor: 'green', disableTouchEvent: true },
-        '2024-04-13' : { selected: true, selectedColor: 'green', disableTouchEvent: true },
-        '2024-04-14' : { selected: true, selectedColor: 'green', disableTouchEvent: true },
-        '2024-04-17' : { selected: true, selectedColor: 'green', disableTouchEvent: true },
-        '2024-04-21' : { selected: true, selectedColor: 'green', disableTouchEvent: true },
-        '2024-04-22' : { selected: true, selectedColor: 'green', disableTouchEvent: true },
-        '2024-04-26' : { selected: true, selectedColor: 'green', disableTouchEvent: true },
-        '2024-04-27' : { selected: true, selectedColor: 'green', disableTouchEvent: true },
-        '2024-04-28' : { selected: true, selectedColor: 'green', disableTouchEvent: true },
-        '2024-04-30' : { selected: true, selectedColor: 'green', disableTouchEvent: true }
-    }
+    useEffect(() => {
+        fetchMonths()
+        fetchAttendanceData()
+    }, [])
+
+    useEffect(() => {
+        calculateData()
+    }, [attendanceData, monthValue])
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent' }}>
@@ -114,7 +210,7 @@ const AttendanceStatusScreen = () => {
                                 <View style={{ width: '48%' }}>
                                     <Text style={{ fontSize: 16 }}>Student ID</Text>
                                     <TextInput
-                                        value={'SX2024-01'}
+                                        value={route.params.studentId}
                                         editable={false}
                                         style={{
                                             flex: 1,
@@ -188,7 +284,7 @@ const AttendanceStatusScreen = () => {
                                 <View style={{ backgroundColor: 'white', width: '95%', alignSelf: 'flex-end', height: '100%', padding: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <Text style={{ fontSize: 18, fontWeight: 500, color: 'black' }}>Working Days</Text>
                                     <View style={{ width: 35, height: 35, backgroundColor: '#4A83DA', borderRadius: 100, justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text style={{ fontSize: 16, fontWeight: 900, color: 'white' }}>23</Text>
+                                        <Text style={{ fontSize: 16, fontWeight: 900, color: 'white' }}>{workingDays}</Text>
                                     </View>
                                 </View>
                             </View>
@@ -197,7 +293,7 @@ const AttendanceStatusScreen = () => {
                                 <View style={{ backgroundColor: 'white', width: '95%', alignSelf: 'flex-end', height: '100%', padding: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <Text style={{ fontSize: 18, fontWeight: 500, color: 'black' }}>Total Absent</Text>
                                     <View style={{ width: 35, height: 35, backgroundColor: '#FFB1B1', borderRadius: 100, justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text style={{ fontSize: 16, fontWeight: 900, color: '#E92020' }}>07</Text>
+                                        <Text style={{ fontSize: 16, fontWeight: 900, color: '#E92020' }}>{totalAbsent}</Text>
                                     </View>
                                 </View>
                             </View>
@@ -206,7 +302,7 @@ const AttendanceStatusScreen = () => {
                                 <View style={{ backgroundColor: 'white', width: '95%', alignSelf: 'flex-end', height: '100%', padding: 10, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                                     <Text style={{ fontSize: 18, fontWeight: 500, color: 'black' }}>Total Present</Text>
                                     <View style={{ width: 35, height: 35, backgroundColor: '#A9F2A4', borderRadius: 100, justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text style={{ fontSize: 16, fontWeight: 900, color: '#0BAC00' }}>16</Text>
+                                        <Text style={{ fontSize: 16, fontWeight: 900, color: '#0BAC00' }}>{totalPresent}</Text>
                                     </View>
                                 </View>
                             </View>
@@ -220,7 +316,7 @@ const AttendanceStatusScreen = () => {
                                         </G>
                                     </Svg>
                                     <View style={{ position: 'absolute', zIndex: 1, width: '88%', height: '88%', backgroundColor: 'white', borderRadius: 100, justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text style={{ color: 'black', fontSize: 25, fontWeight: '600' }}>66.66%</Text>
+                                        <Text style={{ color: 'black', fontSize: 25, fontWeight: '600' }}>{monthPercentage}%</Text>
                                         <Text style={{ color: 'grey', fontSize: 13, fontWeight: '600', textAlign: 'center' }}>Attendance Accuracy of This Month</Text>
                                     </View>
                                 </View>
@@ -233,7 +329,7 @@ const AttendanceStatusScreen = () => {
                                         </G>
                                     </Svg>
                                     <View style={{ position: 'absolute', zIndex: 1, width: '88%', height: '88%', backgroundColor: 'white', borderRadius: 100, justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text style={{ color: 'black', fontSize: 25, fontWeight: '600' }}>90%</Text>
+                                        <Text style={{ color: 'black', fontSize: 25, fontWeight: '600' }}>{overallPercentage}%</Text>
                                         <Text style={{ color: 'grey', fontSize: 13, fontWeight: '600', textAlign: 'center' }}>Overall Attendance Accuracy</Text>
                                     </View>
                                 </View>

@@ -24,7 +24,7 @@ import { useNavigation } from '@react-navigation/native';
 //FontAwesome Icons
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faLessThan } from '@fortawesome/free-solid-svg-icons/faLessThan'
-import { faGreaterThan, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
+import { faArrowRight, faGreaterThan, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 
 //Importing Assets
 import DIVIDER from '../../assets/images/divider.png'
@@ -241,22 +241,27 @@ const FeesScreen = () => {
                                         <View style={{ width: '25%' }}>
                                             <Text style={{ fontSize: 13, textAlign: 'center', color: 'black' }}>{item.name}</Text>
                                         </View>
-                                        <View style={{ width: '25%' }}>
-                                            <Text style={{ fontSize: 13, textAlign: 'center', color: 'black' }}>{item.studentId}</Text>
-                                        </View>
+                                        <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('Fees Status', {studentId: item.studentId})} style={{ width: '25%' }}>
+                                            <View>
+                                                <Text style={{ fontSize: 13, textAlign: 'center', color: 'black', textDecorationLine: 'underline' }}>{item.studentId}</Text>
+                                                <View style={{ position: 'absolute', right: -3, top: -4, transform: [{ rotate: '-30deg' }] }}>
+                                                    <FontAwesomeIcon icon={faArrowRight} size={10} color='#4477BB'></FontAwesomeIcon>
+                                                </View>
+                                            </View>
+                                        </TouchableOpacity>
                                         <View style={{ width: '18%', justifyContent: 'center', alignItems: 'center' }}>
-                                            <Pressable onPress={() => { handleStateChange(index, true) }} android_ripple={{ foreground: true, borderless: true }} style={{ width: 20, height: 20, borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
+                                            <View style={{ width: 20, height: 20, borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
                                                 {
                                                     item.isPaid === true && (<View style={[{ width: '80%', height: '80%', borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: '#79eb2d', justifyContent: 'center', alignItems: 'center' }]}></View>)
                                                 }
-                                            </Pressable>
+                                            </View>
                                         </View>
                                         <View style={{ width: '18%', justifyContent: 'center', alignItems: 'center' }}>
-                                            <Pressable onPress={() => { handleStateChange(index, false) }} android_ripple={{ foreground: true, borderless: true }} style={{ width: 20, height: 20, borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
+                                            <View style={{ width: 20, height: 20, borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
                                                 {
                                                     item.isPaid === false && (<View style={{ width: '80%', height: '80%', borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: '#f75843', justifyContent: 'center', alignItems: 'center' }}></View>)
                                                 }
-                                            </Pressable>
+                                            </View>
                                         </View>
                                     </View>
                                 )) : data.map((item, index) => (
@@ -264,22 +269,27 @@ const FeesScreen = () => {
                                         <View style={{ width: '25%' }}>
                                             <Text style={{ fontSize: 13, textAlign: 'center', color: 'black' }}>{item.name}</Text>
                                         </View>
-                                        <View style={{ width: '25%' }}>
-                                            <Text style={{ fontSize: 13, textAlign: 'center', color: 'black' }}>{item.studentId}</Text>
-                                        </View>
+                                        <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('Fees Status', {studentId: item.studentId})} style={{ width: '25%' }}>
+                                            <View>
+                                                <Text style={{ fontSize: 13, textAlign: 'center', color: 'black', textDecorationLine: 'underline' }}>{item.studentId}</Text>
+                                                <View style={{ position: 'absolute', right: -3, top: -4, transform: [{ rotate: '-30deg' }] }}>
+                                                    <FontAwesomeIcon icon={faArrowRight} size={10} color='#4477BB'></FontAwesomeIcon>
+                                                </View>
+                                            </View>
+                                        </TouchableOpacity>
                                         <View style={{ width: '18%', justifyContent: 'center', alignItems: 'center' }}>
-                                            <Pressable onPress={() => { handleStateChange(index, true) }} android_ripple={{ foreground: true, borderless: true }} style={{ width: 20, height: 20, borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
+                                            <View style={{ width: 20, height: 20, borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
                                                 {
                                                     item.isPaid === true && (<View style={[{ width: '80%', height: '80%', borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: '#79eb2d', justifyContent: 'center', alignItems: 'center' }]}></View>)
                                                 }
-                                            </Pressable>
+                                            </View>
                                         </View>
                                         <View style={{ width: '18%', justifyContent: 'center', alignItems: 'center' }}>
-                                            <Pressable onPress={() => { handleStateChange(index, false) }} android_ripple={{ foreground: true, borderless: true }} style={{ width: 20, height: 20, borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
+                                            <View style={{ width: 20, height: 20, borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: 'white', justifyContent: 'center', alignItems: 'center' }}>
                                                 {
                                                     item.isPaid === false && (<View style={{ width: '80%', height: '80%', borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: '#f75843', justifyContent: 'center', alignItems: 'center' }}></View>)
                                                 }
-                                            </Pressable>
+                                            </View>
                                         </View>
                                     </View>
                                 ))

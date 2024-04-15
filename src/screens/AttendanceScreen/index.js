@@ -26,6 +26,7 @@ import { useNavigation } from '@react-navigation/native';
 import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome';
 import { faLessThan } from '@fortawesome/free-solid-svg-icons/faLessThan';
 import {
+  faArrowRight,
   faGreaterThan,
   faMagnifyingGlass,
 } from '@fortawesome/free-solid-svg-icons';
@@ -35,39 +36,6 @@ import BOTTOMVECTOR from '../../assets/images/bottomvector.png';
 import DIVIDER from '../../assets/images/divider.png';
 import AVATAR from '../../assets/images/avatar.jpg';
 import ipAddress from '../../url';
-
-const attendanceData = [
-  {
-    studentId: 'SV202401',
-    name: 'Md. Aasif Ali Aadil',
-    isPresent: true,
-  },
-  {
-    studentId: 'SV202402',
-    name: 'Md. Abdul Rab',
-    isPresent: false,
-  },
-  {
-    studentId: 'SV202403',
-    name: 'Md. Amir',
-    isPresent: true,
-  },
-  {
-    studentId: 'SV202404',
-    name: 'Nitesh Kumar',
-    isPresent: true,
-  },
-  {
-    studentId: 'SV202405',
-    name: 'Md. Ashfaque',
-    isPresent: false,
-  },
-  {
-    studentId: 'SV202406',
-    name: 'Hari Narayan Mishra',
-    isPresent: '',
-  },
-];
 
 const AttendanceScreen = () => {
   const navigation = useNavigation();
@@ -83,7 +51,7 @@ const AttendanceScreen = () => {
   const [modal, setmodal] = useState(false);
 
   //States for Attendance Data
-  const [data, setdata] = useState(attendanceData);
+  const [data, setdata] = useState([]);
   const [selectedOption, setselectedOption] = useState(null);
   const handleStateChange = (index, value) => {
     const updatedData = [...data];
@@ -125,9 +93,45 @@ const AttendanceScreen = () => {
 
     setselectClass(classes)
   }
+  //Fetch Fees Status from Backend
+  const fetchAttendanceData = async () => {
+    if (value && date) {
+      const response = await fetch(`http://${ipAddress}:3000/api/v1/attendances/${value}?date=${date.toLocaleDateString('en-GB')}`).then((res) => res.json())
+
+      if (response.success === false) {
+        setdata([
+          {
+            studentId: 'Not Found',
+            name: 'Not Found',
+            isPresent: '',
+          }
+        ])
+        return
+      } else {
+        var data = []
+        response.attendanceDetails.forEach((item) => {
+          var temp = {
+            studentId: item.studentId,
+            name: item.studentName,
+            isPresent: item.isPresent,
+          }
+
+          data.push(temp)
+        })
+        setdata(data)
+      }
+    } else {
+      return
+    }
+  }
+  // useEffect(() => {
+  //   fetchClasses()
+  //   fetchFeesStatus()
+  // }, [classValue, monthValue])
   useEffect(() => {
     fetchClasses()
-  }, [])
+    fetchAttendanceData()
+  }, [value, date])
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent' }}>
@@ -136,40 +140,22 @@ const AttendanceScreen = () => {
         style={styles.root}>
         <View style={styles.headerContainer}>
           <View style={styles.headerLeft}>
-            <TouchableWithoutFeedback
-              onPress={() => {
-                navigation.goBack();
-              }}>
+            <TouchableWithoutFeedback onPress={() => { navigation.goBack(); }}>
               <View>
-                <FontAwesomeIcon
-                  size={20}
-                  style={styles.headerIcon}
-                  icon={faLessThan}></FontAwesomeIcon>
+                <FontAwesomeIcon size={20} style={styles.headerIcon} icon={faLessThan}></FontAwesomeIcon>
               </View>
             </TouchableWithoutFeedback>
             <Text style={styles.headerText}>Attendance</Text>
           </View>
         </View>
 
-        <ScrollView
-          contentContainerStyle={{ flexGrow: 1 }}
-          showsVerticalScrollIndicator={false}>
-          <StatusBar
-            backgroundColor="#4477BB"
-            barStyle="light-content"></StatusBar>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }} showsVerticalScrollIndicator={false}>
+          <StatusBar backgroundColor="#4477BB" barStyle="light-content"></StatusBar>
           <View style={styles.Section3_container}>
             <View
-              style={{
-                padding: 18,
-                borderTopRightRadius: 30,
-                borderTopLeftRadius: 30,
-              }}>
+              style={{ padding: 18, borderTopRightRadius: 30, borderTopLeftRadius: 30, }}>
               <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}>
+                style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', }}>
                 <View style={{ width: '48%' }}>
                   <Text style={{ fontSize: 16 }}>Select Class</Text>
                   <Dropdown
@@ -196,16 +182,7 @@ const AttendanceScreen = () => {
                     value={date.toLocaleDateString('en-GB')}
                     onFocus={() => setmodal(!modal)}
                     onChange={() => setmodal(!modal)}
-                    style={{
-                      flex: 1,
-                      height: 50,
-                      fontSize: 15,
-                      fontWeight: 'bold',
-                      color: 'black',
-                      paddingHorizontal: 8,
-                      borderBottomWidth: 0.5,
-                      borderBottomColor: 'grey',
-                    }}></TextInput>
+                    style={{ flex: 1, height: 50, fontSize: 15, fontWeight: 'bold', color: 'black', paddingHorizontal: 8, borderBottomWidth: 0.5, borderBottomColor: 'grey', }}></TextInput>
                   {datePicker && (
                     <DateTimePicker
                       weekDaysTextStyle={{ color: 'black' }}
@@ -225,37 +202,16 @@ const AttendanceScreen = () => {
               <Modal visible={modal} transparent={true} animationType="slide">
                 <Pressable
                   onPress={() => setmodal(false)}
-                  style={{
-                    flex: 1,
-                    padding: 15,
-                    backgroundColor: 'rgba(0,0,0,0.5)',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    gap: 10,
-                  }}>
+                  style={{ flex: 1, padding: 15, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'center', alignItems: 'center', gap: 10, }}>
                   <View
-                    style={{
-                      width: '100%',
-                      backgroundColor: '#4477BB',
-                      borderRadius: 10,
-                      padding: 10,
-                    }}>
+                    style={{ width: '100%', backgroundColor: '#4477BB', borderRadius: 10, padding: 10, }}>
                     <Text
-                      style={{
-                        fontSize: 20,
-                        textAlign: 'center',
-                        fontWeight: 900,
-                        color: 'white',
-                      }}>
+                      style={{ fontSize: 20, textAlign: 'center', fontWeight: 900, color: 'white', }}>
                       Select Date
                     </Text>
                   </View>
                   <View
-                    style={{
-                      backgroundColor: 'white',
-                      padding: 10,
-                      borderRadius: 15,
-                    }}>
+                    style={{ backgroundColor: 'white', padding: 10, borderRadius: 15, }}>
                     <DateTimePicker
                       weekDaysTextStyle={{ color: 'black' }}
                       headerTextStyle={{ color: 'black' }}
@@ -273,53 +229,23 @@ const AttendanceScreen = () => {
               </Modal>
 
               <View style={{ width: '100%' }}>
-                <Image
-                  source={DIVIDER}
-                  resizeMode="contain"
-                  style={{ width: '100%' }}></Image>
+                <Image source={DIVIDER} resizeMode="contain" style={{ width: '100%' }}></Image>
               </View>
 
               <View
                 style={{
-                  flexDirection: 'row',
-                  justifyContent: 'center',
-                  alignItems: 'center',
+                  flexDirection: 'row', justifyContent: 'center', alignItems: 'center',
                 }}>
-                <FontAwesomeIcon
-                  icon={faMagnifyingGlass}
-                  color="#4477BB"
-                  size={16}
-                  style={{ position: 'absolute', left: 8 }}
-                />
+                <FontAwesomeIcon icon={faMagnifyingGlass} color="#4477BB" size={16} style={{ position: 'absolute', left: 8 }} />
                 <TextInput
-                  style={{
-                    width: '100%',
-                    fontSize: 17,
-                    paddingLeft: 30,
-                    paddingVertical: 3,
-                    fontWeight: 'bold',
-                    color: 'black',
-                    borderWidth: 0.5,
-                    borderColor: 'grey',
-                    borderStyle: 'dashed',
-                    borderRadius: 10,
-                  }}
+                  style={{ width: '100%', fontSize: 17, paddingLeft: 30, paddingVertical: 3, fontWeight: 'bold', color: 'black', borderWidth: 0.5, borderColor: 'grey', borderStyle: 'dashed', borderRadius: 10, }}
                   placeholder="Search Student"
                   value={queryValue}
                   onChangeText={e => handleQueryInput(e)}></TextInput>
               </View>
 
               <View
-                style={{
-                  marginTop: 15,
-                  width: '100%',
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  paddingHorizontal: 8,
-                  paddingVertical: 5,
-                  backgroundColor: '#4477BB',
-                }}>
+                style={{ marginTop: 15, width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 5, backgroundColor: '#4477BB', }}>
                 <View style={{ width: '25%' }}>
                   <Text style={{ fontSize: 12, textAlign: 'center', color: 'white' }}>
                     Student Name
@@ -344,202 +270,116 @@ const AttendanceScreen = () => {
 
               {queryValue != ''
                 ? queryData.map((item, index) => (
-                  <View
-                    key={index}
-                    style={{
-                      width: '100%',
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      borderBottomWidth: 0.5,
-                      borderBottomColor: 'grey',
-                      paddingHorizontal: 8,
-                      paddingVertical: 10,
-                      backgroundColor: 'white',
-                    }}>
+                  <View key={index} style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 0.5, borderBottomColor: 'grey', paddingHorizontal: 8, paddingVertical: 10, backgroundColor: 'white', }}>
                     <View style={{ width: '25%' }}>
-                      <Text style={{fontSize: 12, textAlign: 'center', color: 'black' }}>
+                      <Text style={{ fontSize: 12, textAlign: 'center', color: 'black' }}>
                         {item.name}
                       </Text>
                     </View>
-                    <View style={{ width: '25%' }}>
-                      <Text style={{fontSize: 12, textAlign: 'center', color: 'black' }}>
+                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('Attendance Status', { studentId: item.studentId })} style={{ width: '25%' }}>
+                      <Text style={{ fontSize: 12, textAlign: 'center', color: 'black', textDecorationLine: 'underline' }}>
                         {item.studentId}
                       </Text>
+                      <View style={{ position: 'absolute', right: -3, top: -4, transform: [{ rotate: '-30deg' }] }}>
+                        <FontAwesomeIcon icon={faArrowRight} size={10} color='#4477BB'></FontAwesomeIcon>
+                      </View>
+                    </TouchableOpacity>
+                    <View style={{ width: '18%', justifyContent: 'center', alignItems: 'center', }}>
+                      {
+                        item.isPresent === null ? (
+                          <Pressable onPress={() => { handleStateChange(index, true); }} android_ripple={{ foreground: true, borderless: true }} style={{ width: 20, height: 20, borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: 'white', justifyContent: 'center', alignItems: 'center', }}>
+                            {
+                              item.isPresent === true && (
+                                <View style={[{ width: '80%', height: '80%', borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: '#79eb2d', justifyContent: 'center', alignItems: 'center', },]}></View>
+                              )
+                            }
+                          </Pressable>
+                        ) : (
+                          <View style={{ width: 20, height: 20, borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: 'white', justifyContent: 'center', alignItems: 'center', }}>
+                            {
+                              item.isPresent === true && (
+                                <View style={[{ width: '80%', height: '80%', borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: '#79eb2d', justifyContent: 'center', alignItems: 'center', },]}></View>
+                              )
+                            }
+                          </View>
+                        )
+                      }
                     </View>
-                    <View
-                      style={{
-                        width: '18%',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}>
-                      <Pressable
-                        onPress={() => {
-                          handleStateChange(index, true);
-                        }}
-                        android_ripple={{ foreground: true, borderless: true }}
-                        style={{
-                          width: 20,
-                          height: 20,
-                          borderRadius: 50,
-                          borderWidth: 0.5,
-                          borderColor: 'grey',
-                          backgroundColor: 'white',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                        }}>
-                        {item.isPresent === true && (
-                          <View
-                            style={[
-                              {
-                                width: '80%',
-                                height: '80%',
-                                borderRadius: 50,
-                                borderWidth: 0.5,
-                                borderColor: 'grey',
-                                backgroundColor: '#79eb2d',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                              },
-                            ]}></View>
-                        )}
-                      </Pressable>
-                    </View>
-                    <View
-                      style={{
-                        width: '18%',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}>
-                      <Pressable
-                        onPress={() => {
-                          handleStateChange(index, false);
-                        }}
-                        android_ripple={{ foreground: true, borderless: true }}
-                        style={{
-                          width: 20,
-                          height: 20,
-                          borderRadius: 50,
-                          borderWidth: 0.5,
-                          borderColor: 'grey',
-                          backgroundColor: 'white',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                        }}>
-                        {item.isPresent === false && (
-                          <View
-                            style={{
-                              width: '80%',
-                              height: '80%',
-                              borderRadius: 50,
-                              borderWidth: 0.5,
-                              borderColor: 'grey',
-                              backgroundColor: '#f75843',
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                            }}></View>
-                        )}
-                      </Pressable>
+                    <View style={{ width: '18%', justifyContent: 'center', alignItems: 'center', }}>
+                      {
+                        item.isPresent === null ? (
+                          <Pressable onPress={() => { handleStateChange(index, false); }} android_ripple={{ foreground: true, borderless: true }} style={{ width: 20, height: 20, borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: 'white', justifyContent: 'center', alignItems: 'center', }}>
+                            {item.isPresent === false && (
+                              <View
+                                style={{ width: '80%', height: '80%', borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: '#f75843', justifyContent: 'center', alignItems: 'center', }}></View>
+                            )}
+                          </Pressable>
+                        ) : (
+                          <View style={{ width: 20, height: 20, borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: 'white', justifyContent: 'center', alignItems: 'center', }}>
+                            {item.isPresent === false && (
+                              <View
+                                style={{ width: '80%', height: '80%', borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: '#f75843', justifyContent: 'center', alignItems: 'center', }}></View>
+                            )}
+                          </View>
+                        )
+                      }
                     </View>
                   </View>
                 ))
                 : data.map((item, index) => (
-                  <View
-                    key={index}
-                    style={{
-                      width: '100%',
-                      flexDirection: 'row',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
-                      borderBottomWidth: 0.5,
-                      borderBottomColor: 'grey',
-                      paddingHorizontal: 8,
-                      paddingVertical: 10,
-                      backgroundColor: 'white',
-                    }}>
+                  <View key={index} style={{ width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', borderBottomWidth: 0.5, borderBottomColor: 'grey', paddingHorizontal: 8, paddingVertical: 10, backgroundColor: 'white', }}>
                     <View style={{ width: '25%' }}>
-                      <Text style={{fontSize: 12, textAlign: 'center', color: 'black' }}>
+                      <Text style={{ fontSize: 12, textAlign: 'center', color: 'black' }}>
                         {item.name}
                       </Text>
                     </View>
-                    <View style={{ width: '25%' }}>
-                      <Text style={{fontSize: 12, textAlign: 'center', color: 'black' }}>
+                    <TouchableOpacity activeOpacity={0.5} onPress={() => navigation.navigate('Attendance Status', { studentId: item.studentId })} style={{ width: '25%' }}>
+                      <Text style={{ fontSize: 12, textAlign: 'center', color: 'black', textDecorationLine: 'underline' }}>
                         {item.studentId}
                       </Text>
+                      <View style={{ position: 'absolute', right: -3, top: -4, transform: [{ rotate: '-30deg' }] }}>
+                        <FontAwesomeIcon icon={faArrowRight} size={10} color='#4477BB'></FontAwesomeIcon>
+                      </View>
+                    </TouchableOpacity>
+                    <View style={{ width: '18%', justifyContent: 'center', alignItems: 'center', }}>
+                      {
+                        item.isPresent === null ? (
+                          <Pressable onPress={() => { handleStateChange(index, true); }} android_ripple={{ foreground: true, borderless: true }} style={{ width: 20, height: 20, borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: 'white', justifyContent: 'center', alignItems: 'center', }}>
+                            {
+                              item.isPresent === true && (
+                                <View style={[{ width: '80%', height: '80%', borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: '#79eb2d', justifyContent: 'center', alignItems: 'center', },]}></View>
+                              )
+                            }
+                          </Pressable>
+                        ) : (
+                          <View style={{ width: 20, height: 20, borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: 'white', justifyContent: 'center', alignItems: 'center', }}>
+                            {
+                              item.isPresent === true && (
+                                <View style={[{ width: '80%', height: '80%', borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: '#79eb2d', justifyContent: 'center', alignItems: 'center', },]}></View>
+                              )
+                            }
+                          </View>
+                        )
+                      }
                     </View>
-                    <View
-                      style={{
-                        width: '18%',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}>
-                      <Pressable
-                        onPress={() => {
-                          handleStateChange(index, true);
-                        }}
-                        android_ripple={{ foreground: true, borderless: true }}
-                        style={{
-                          width: 20,
-                          height: 20,
-                          borderRadius: 50,
-                          borderWidth: 0.5,
-                          borderColor: 'grey',
-                          backgroundColor: 'white',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                        }}>
-                        {item.isPresent === true && (
-                          <View
-                            style={[
-                              {
-                                width: '80%',
-                                height: '80%',
-                                borderRadius: 50,
-                                borderWidth: 0.5,
-                                borderColor: 'grey',
-                                backgroundColor: '#79eb2d',
-                                justifyContent: 'center',
-                                alignItems: 'center',
-                              },
-                            ]}></View>
-                        )}
-                      </Pressable>
-                    </View>
-                    <View
-                      style={{
-                        width: '18%',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}>
-                      <Pressable
-                        onPress={() => {
-                          handleStateChange(index, false);
-                        }}
-                        android_ripple={{ foreground: true, borderless: true }}
-                        style={{
-                          width: 20,
-                          height: 20,
-                          borderRadius: 50,
-                          borderWidth: 0.5,
-                          borderColor: 'grey',
-                          backgroundColor: 'white',
-                          justifyContent: 'center',
-                          alignItems: 'center',
-                        }}>
-                        {item.isPresent === false && (
-                          <View
-                            style={{
-                              width: '80%',
-                              height: '80%',
-                              borderRadius: 50,
-                              borderWidth: 0.5,
-                              borderColor: 'grey',
-                              backgroundColor: '#f75843',
-                              justifyContent: 'center',
-                              alignItems: 'center',
-                            }}></View>
-                        )}
-                      </Pressable>
+                    <View style={{ width: '18%', justifyContent: 'center', alignItems: 'center', }}>
+                      {
+                        item.isPresent === null ? (
+                          <Pressable onPress={() => { handleStateChange(index, false); }} android_ripple={{ foreground: true, borderless: true }} style={{ width: 20, height: 20, borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: 'white', justifyContent: 'center', alignItems: 'center', }}>
+                            {item.isPresent === false && (
+                              <View
+                                style={{ width: '80%', height: '80%', borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: '#f75843', justifyContent: 'center', alignItems: 'center', }}></View>
+                            )}
+                          </Pressable>
+                        ) : (
+                          <View style={{ width: 20, height: 20, borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: 'white', justifyContent: 'center', alignItems: 'center', }}>
+                            {item.isPresent === false && (
+                              <View
+                                style={{ width: '80%', height: '80%', borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: '#f75843', justifyContent: 'center', alignItems: 'center', }}></View>
+                            )}
+                          </View>
+                        )
+                      }
                     </View>
                   </View>
                 ))}
@@ -547,16 +387,7 @@ const AttendanceScreen = () => {
             {/* <Image style={styles.img} source={BOTTOMVECTOR}/> */}
           </View>
         </ScrollView>
-        <TouchableOpacity
-          onPress={() => Alert.alert('ok')}
-          activeOpacity={0.7}
-          style={{
-            width: '90%',
-            position: 'absolute',
-            bottom: 0,
-            marginVertical: 15,
-            alignSelf: 'center',
-          }}>
+        <TouchableOpacity onPress={() => Alert.alert('ok')} activeOpacity={0.7} style={{ width: '90%', position: 'absolute', bottom: 0, marginVertical: 15, alignSelf: 'center', }}>
           <View>
             <Text style={styles.btn}>Update Attendance</Text>
           </View>

@@ -91,6 +91,18 @@ const StudentDetailsScreen = () => {
                         </View>
 
                         <View style={{ marginTop: 15 }}>
+                            <Text style={{ fontSize: 16, color: 'black' }}>Student Id</Text>
+                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', }}>
+                                <TextInput
+                                    value={route.params.studentId}
+                                    editable={false}
+                                    style={{ width: '100%', fontSize: 15, fontWeight: 'bold', color: 'black', marginTop: 3, paddingVertical: 3, paddingHorizontal: 10, borderBottomWidth: 1, borderColor: 'grey' }}>
+                                </TextInput>
+                                <FontAwesomeIcon color='#C3D0EA' size={20} icon={faLock} style={{ position: 'absolute', right: 0, zIndex: 1 }}></FontAwesomeIcon>
+                            </View>
+                        </View>
+
+                        <View style={{ marginTop: 15 }}>
                             <Text style={{ fontSize: 16, color: 'black' }}>Email Id</Text>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', }}>
                                 <TextInput
@@ -102,7 +114,7 @@ const StudentDetailsScreen = () => {
                             </View>
                         </View>
 
-                        <View style={{ marginTop: 30, }}>
+                        <View style={{ marginTop: 20, }}>
                             <Text style={{ fontSize: 16, color: 'black' }}>Class</Text>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', }}>
                                 <TextInput
@@ -114,7 +126,7 @@ const StudentDetailsScreen = () => {
                             </View>
                         </View>
 
-                        <View style={{ marginTop: 30, }}>
+                        <View style={{ marginTop: 20, }}>
                             <Text style={{ fontSize: 16, color: 'black' }}>Full Name</Text>
                             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', }}>
                                 <TextInput
@@ -176,11 +188,11 @@ const StudentDetailsScreen = () => {
 
                         <View style={{ marginTop: 20, }}>
                             <Text style={{ fontSize: 16, color: 'black' }}>Date of Admission</Text>
-                            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', }}>
+                            <View style={{ marginTop: 3, borderBottomWidth: 1, borderColor: 'grey', flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', }}>
                                 <TextInput
                                     value={studentDetails.admissionDate}
                                     editable={false}
-                                    style={{ width: '100%', fontSize: 15, fontWeight: 'bold', color: 'black', marginTop: 3, paddingVertical: 3, paddingHorizontal: 10, borderBottomWidth: 1, borderColor: 'grey' }}>
+                                    style={{  flex: 1, fontSize: 15, fontWeight: 'bold', color: 'black', paddingHorizontal: 10, paddingVertical: 3, }}>
                                 </TextInput>
                                 <FontAwesomeIcon color='#C3D0EA' size={20} icon={faLock} style={{ position: 'absolute', right: 0, zIndex: 1 }}></FontAwesomeIcon>
                             </View>
@@ -236,7 +248,7 @@ const StudentDetailsScreen = () => {
                         </View>
                     </View>
                     <Pressable
-                        onPress={() => navigation.navigate('Attendance Status')}
+                        onPress={() => navigation.navigate('Attendance Status', {studentId: route.params.studentId})}
                         android_ripple={{ foreground: true, borderless: false, }}
                         style={{
                             width: '90%',
@@ -255,7 +267,7 @@ const StudentDetailsScreen = () => {
                         </View>
                     </Pressable>
                     <Pressable
-                        onPress={() => navigation.navigate('Fees Status')}
+                        onPress={() => navigation.navigate('Fees Status', {studentId: route.params.studentId})}
                         android_ripple={{ foreground: true, borderless: false, }}
                         style={{
                             width: '90%',

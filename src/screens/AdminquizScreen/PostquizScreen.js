@@ -25,6 +25,9 @@ import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
 import { faLessThan } from '@fortawesome/free-solid-svg-icons/faLessThan'
 import { faGreaterThan, faMagnifyingGlass } from '@fortawesome/free-solid-svg-icons'
 
+//Importing Components
+import QuestionandOptions from '../../components/PostQuizComponents/QuestionandOptions';
+
 //Importing Assets
 import BOTTOMVECTOR from '../../assets/images/bottomvector.png'
 import DIVIDER from '../../assets/images/divider.png'
@@ -69,7 +72,90 @@ const postquizScreen = () => {
     const [isFocusSubject, setIsFocusSubject] = useState(false);
     const [isFocusNoOfQuestion, setIsFocusNoOfQuestion] = useState(false);
 
+    //States for Questions and Options Input
+    const [Q$A, setQ$A] = useState([])
 
+    const handleNoofQuestions = (noOfQuestions) => {
+        // var arrayofQuestions = Array(2).fill({
+        //     questions: Array(2).fill(""),
+        //     options: Array(2).fill({
+        //         option1: "",
+        //         option2: "",
+        //         option3: "",
+        //         option4: ""
+        //     }),
+        //     rightAnswer: ''
+        // })
+        if (!Q$A.length) {
+            var arrayofQuestions = []
+            for (i = 0; i < noOfQuestions; i++) {
+                var temp = {
+                    question: "",
+                    option: {
+                        option1: "",
+                        option2: "",
+                        option3: "",
+                        option4: ""
+                    },
+                    rightAnswer: "",
+                    _id: i
+                }
+                arrayofQuestions.push(temp)
+            }
+            setQ$A(arrayofQuestions)
+        }
+        else {
+            if (noOfQuestions > Q$A.length) {
+                var length = noOfQuestions - Q$A.length
+                var prevArray = [...Q$A]
+                for (i = length; i < noOfQuestions; i++) {
+                    var temp = {
+                        question: "",
+                        option: {
+                            option1: "",
+                            option2: "",
+                            option3: "",
+                            option4: ""
+                        },
+                        rightAnswer: "",
+                        _id: i
+                    }
+                    prevArray.push(temp)
+                }
+                setQ$A(prevArray)
+            } else {
+                var index = Q$A.length - noOfQuestions
+                var prevArray = [...Q$A]
+
+                var newArray = prevArray.slice(0, index)
+
+                setQ$A(newArray)
+            }
+        }
+    }
+
+    const formatData = () => {
+        const data = [...Q$A]
+
+        if(!data.length){
+            return
+        }
+        var questions = []
+        var options = []
+        var rightAnswers = []
+
+        data.forEach((item) => {
+            questions.push(item.question)
+            options.push(item.option)
+            rightAnswers.push(item.rightAnswer)
+        })
+
+        console.log(questions)
+        console.log(options)
+        console.log(rightAnswers)
+    }
+
+    formatData()
 
     //Handle Navigation
     const handleNavigation = () => {
@@ -95,7 +181,7 @@ const postquizScreen = () => {
                     showsVerticalScrollIndicator={false}>
                     <StatusBar backgroundColor="#4477BB" barStyle="light-content"></StatusBar>
                     <View style={styles.Section3_container}>
-                        <View style={{ padding: 18, borderTopRightRadius: 30, borderTopLeftRadius: 30, }}>
+                        <View style={{ paddingHorizontal: 18, paddingVertical: 10, borderTopRightRadius: 30, borderTopLeftRadius: 30, }}>
                             <View>
                                 <Text style={{ fontSize: 16 }}>Select Class</Text>
                             </View>
@@ -116,13 +202,9 @@ const postquizScreen = () => {
                                     setIsFocusClass(false);
                                 }}
                             />
+                        </View>
 
-          
-
-                           
-
-                           </View>
-                           <View style={{ padding: 18, borderTopRightRadius: 30, borderTopLeftRadius: 30, }}>
+                        <View style={{ paddingHorizontal: 18, paddingVertical: 10, borderTopRightRadius: 30, borderTopLeftRadius: 30, }}>
                             <View>
                                 <Text style={{ fontSize: 16 }}>Select Subject</Text>
                             </View>
@@ -143,13 +225,9 @@ const postquizScreen = () => {
                                     setIsFocusSubject(false);
                                 }}
                             />
+                        </View>
 
-                          
-
-                           
-
-                           </View>
-                           <View style={{ padding: 18, borderTopRightRadius: 30, borderTopLeftRadius: 30, }}>
+                        <View style={{ paddingHorizontal: 18, paddingVertical: 10, borderTopRightRadius: 30, borderTopLeftRadius: 30, }}>
                             <View>
                                 <Text style={{ fontSize: 16 }}>Select Total Number of question</Text>
                             </View>
@@ -168,50 +246,34 @@ const postquizScreen = () => {
                                 onChange={item => {
                                     setNoOfQuestion(item.value);
                                     setIsFocusNoOfQuestion(false);
+                                    handleNoofQuestions(parseInt(item.value))
                                 }}
                             />
+                        </View>
 
+                        <View style={{ paddingHorizontal: 5, paddingVertical: 3, }}>
                             <View style={{ width: '100%', }}>
                                 <Image source={DIVIDER} resizeMode='contain' style={{ width: '100%' }}></Image>
                             </View>
+                        </View>
 
-                            <Pressable
-                          onPress={() => {
-                            handleStateChange(index, true);
-                          }}
-                          android_ripple={{foreground: true, borderless: true}}
-                          style={{
-                            width: 20,
-                            height: 20,
-                            borderRadius: 50,
-                            borderWidth: 0.5,
-                            borderColor: 'grey',
-                            backgroundColor: 'white',
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          }}>
-                          {(
-                            <View
-                              style={[
+
+                        <View style={{ paddingHorizontal: 18, paddingVertical: 5, }}>
+                            {
+                                Q$A.map((item, index) => (<QuestionandOptions key={index} variable={item} setFunctions={setQ$A} mainState={Q$A} indexNumber={index}></QuestionandOptions>))
+                            }
+                            {/* <Pressable android_ripple={{ foreground: true, borderless: true }}
+                                style={{ width: 20, height: 20, borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: 'white', justifyContent: 'center', alignItems: 'center', }}>
                                 {
-                                  width: '80%',
-                                  height: '80%',
-                                  borderRadius: 50,
-                                  borderWidth: 0.5,
-                                  borderColor: 'grey',
-                                  backgroundColor: '#79eb2d',
-                                  justifyContent: 'center',
-                                  alignItems: 'center',
-                                },
-                              ]}></View>
-                          )}
-                        </Pressable>
+                                    (<View style={[{ width: '80%', height: '80%', borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: '#79eb2d', justifyContent: 'center', alignItems: 'center', },]}></View>)
+                                }
+                            </Pressable> */}
+                        </View>
 
-                           </View>
-                        <Image
+                        {/* <Image
                             style={styles.img}
                             source={BOTTOMVECTOR}
-                        />
+                        /> */}
                     </View>
                 </ScrollView>
             </KeyboardAvoidingView>

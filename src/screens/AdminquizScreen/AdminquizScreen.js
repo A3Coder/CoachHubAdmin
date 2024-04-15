@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     StyleSheet,
     Text,
@@ -31,94 +31,62 @@ import { faGreaterThan, faMagnifyingGlass } from '@fortawesome/free-solid-svg-ic
 import BOTTOMVECTOR from '../../assets/images/bottomvector.png'
 import DIVIDER from '../../assets/images/divider.png'
 import AVATAR from '../../assets/images/avatar.jpg'
+import ipAddress from '../../url';
 
-const selectClass = [
-    { label: 'Class V', value: 'V' },
-    { label: 'Class VI', value: 'VI' },
-    { label: 'Class VII', value: 'VII' },
-    { label: 'Class VIII', value: 'VIII' },
-    { label: 'Class IX', value: 'IX' },
-    { label: 'Class X', value: 'X' },
-];
-
-const selectSubject = [
-    { label: 'Math', value: 'Math' },
-    { label: 'English', value: 'English' },
-    { label: 'Urdu', value: 'Urdu' },
-    { label: 'Hindi', value: 'Hindi' },
-    { label: 'Bengali', value: 'Bengali' },
-];
-
-const Data = [
+const quizData = [
     {
-        studentId: 'SV202401',
+        studentId: 'SX202401',
         name: 'Md. Aasif Ali Aadil',
-        isPresent: true,
-        timing: '30 Secs',
+        timing: '15 Secs',
         accuracy: '80%',
     },
     {
-        studentId: 'SV202402',
+        studentId: 'SX202402',
         name: 'Md. Abdul Rab',
-        isPresent: false,
-        timing: '30 Secs',
-        accuracy: '80%',
+        timing: '18 Secs',
+        accuracy: '76%',
     },
     {
-        studentId: 'SV202403',
+        studentId: 'SX202403',
         name: 'Md. Amir',
-        isPresent: true,
-        timing: '30 Secs',
-        accuracy: '80%',
+        timing: '20 Secs',
+        accuracy: '75%',
     },
     {
-        studentId: 'SV202404',
+        studentId: 'SX202404',
         name: 'Nitesh Kumar',
-        isPresent: true,
-        timing: '30 Secs',
+        timing: '19 Secs',
         accuracy: '80%',
     },
     {
-        studentId: 'SV202405',
+        studentId: 'SX202405',
         name: 'Md. Ashfaque',
-        isPresent: false,
-        timing: '30 Secs',
-        accuracy: '80%',
+        timing: '22 Secs',
+        accuracy: '70%',
     },
     {
-        studentId: 'SV202406',
+        studentId: 'SX202406',
         name: 'Hari Narayan Mishra',
-        isPresent: '',
-        timing: '30 Secs',
-        accuracy: '80%',
+        timing: '28 Secs',
+        accuracy: '40%',
     },
 ]
 
 const AdminquizScreen = () => {
     const navigation = useNavigation()
 
-    const [value, setValue] = useState(null);
-    const [value2, setValue2] = useState(null);
+    const [classValue, setClassValue] = useState(null);
+    const [subjectValue, setSubjectValue] = useState(null);
 
-    const [isFocus, setIsFocus] = useState(false);
-    const [isFocus2, setIsFocus2] = useState(false);
+    const [isClassFocus, setClassFocus] = useState(false);
+    const [isSubjectFocus, setSubjectFocus] = useState(false);
 
-    //States for Date Inputs
-    const [date, setdate] = useState(new Date())
-    const [datePicker, setdatePicker] = useState(false)
-    const [modal, setmodal] = useState(false)
+    //States for Class and Subject Dropdown
+    const [selectClass, setselectClass] = useState([])
+    const [selectSubject, setselectSubject] = useState([])
 
-    //States for Attendance Data
-    const [data, setdata] = useState(Data)
-    const [selectedOption, setselectedOption] = useState(null)
-    const handleStateChange = (index, value) => {
-        var temp = data
-
-        temp[index].isPresent = value
-        setdata(temp)
-        setselectedOption(index)
-        console.log(data)
-    }
+    //States for Quiz Data
+    const [data, setdata] = useState(quizData)
 
     //States for Query Data
     const [queryData, setqueryData] = useState([])
@@ -126,7 +94,7 @@ const AdminquizScreen = () => {
     const handleQueryInput = (e) => {
         setqueryValue(e)
         let input = e
-        const queryData = Data.filter((item) => {
+        const queryData = quizData.filter((item) => {
             const pattern = new RegExp(input, "gi")
             if (pattern.exec(item.name) != null) {
                 return true
@@ -139,6 +107,37 @@ const AdminquizScreen = () => {
 
         setqueryData(queryData)
     }
+
+    //Fetch Data from Backend
+    const fetchSubjects = async (classId) => {
+        const response = await fetch(`http://${ipAddress}:3000/api/v1/classes/${classId}`).then((res) => res.json())
+
+        var subjects = []
+        response.subjects.forEach((item) => {
+            var temp = { label: item.name, value: item.name }
+
+            subjects.push(temp)
+        })
+        
+        setselectSubject(subjects)
+    }
+
+    const fetchClasses = async () => {
+        const response = await fetch(`http://${ipAddress}:3000/api/v1/classes`).then((res) => res.json())
+
+        var classes = []
+        response.forEach((item) => {
+            var temp = { label: `Class ${item.class}`, value: item.class }
+
+            classes.push(temp)
+        })
+
+        setselectClass(classes)
+    }
+
+    useState(() => {
+        fetchClasses()
+    }, [])
 
     return (
         <SafeAreaView style={{ flex: 1, backgroundColor: 'transparent' }}>
@@ -171,13 +170,14 @@ const AdminquizScreen = () => {
                                         maxHeight={300}
                                         labelField="label"
                                         valueField="value"
-                                        placeholder={!isFocus ? 'Select item' : '....'}
-                                        value={value}
-                                        onFocus={() => setIsFocus(true)}
-                                        onBlur={() => setIsFocus(false)}
+                                        placeholder={!isClassFocus ? 'Select Class' : '....'}
+                                        value={classValue}
+                                        onFocus={() => setClassFocus(true)}
+                                        onBlur={() => setClassFocus(false)}
                                         onChange={item => {
-                                            setValue(item.value);
-                                            setIsFocus(false);
+                                            setClassValue(item.value);
+                                            setClassFocus(false);
+                                            fetchSubjects(item.value)
                                         }}
                                     />
                                 </View>
@@ -191,13 +191,13 @@ const AdminquizScreen = () => {
                                         maxHeight={300}
                                         labelField="label"
                                         valueField="value"
-                                        placeholder={!isFocus2 ? 'Select item' : '....'}
-                                        value={value2}
-                                        onFocus={() => setIsFocus2(true)}
-                                        onBlur={() => setIsFocus2(false)}
+                                        placeholder={!isSubjectFocus ? 'Select Subject' : '....'}
+                                        value={subjectValue}
+                                        onFocus={() => setSubjectFocus(true)}
+                                        onBlur={() => setSubjectFocus(false)}
                                         onChange={item => {
-                                            setValue2(item.value);
-                                            setIsFocus2(false);
+                                            setSubjectValue(item.value);
+                                            setSubjectFocus(false);
                                         }}
                                     />
                                 </View>
@@ -219,16 +219,16 @@ const AdminquizScreen = () => {
 
                             <View style={{ marginTop: 15, width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 8, paddingVertical: 5, backgroundColor: '#4477BB' }}>
                                 <View style={{ width: '25%' }}>
-                                    <Text style={{fontSize: 12, textAlign: 'center', color: 'white' }}>Student Name</Text>
+                                    <Text style={{ fontSize: 12, textAlign: 'center', color: 'white' }}>Student Name</Text>
                                 </View>
                                 <View style={{ width: '25%' }}>
-                                    <Text style={{fontSize: 12, textAlign: 'center', color: 'white' }}>Student Id</Text>
+                                    <Text style={{ fontSize: 12, textAlign: 'center', color: 'white' }}>Student Id</Text>
                                 </View>
                                 <View style={{ width: '18%' }}>
-                                    <Text style={{fontSize: 12, textAlign: 'center', color: 'white' }}>Timing</Text>
+                                    <Text style={{ fontSize: 12, textAlign: 'center', color: 'white' }}>Timing</Text>
                                 </View>
                                 <View style={{ width: '18%' }}>
-                                    <Text style={{fontSize: 12, textAlign: 'center', color: 'white' }}>Accuracy</Text>
+                                    <Text style={{ fontSize: 12, textAlign: 'center', color: 'white' }}>Accuracy</Text>
                                 </View>
                             </View>
 
@@ -265,7 +265,6 @@ const AdminquizScreen = () => {
                                     </View>
                                 ))
                             }
-
 
                         </View>
                         {/* <Image style={styles.img} source={BOTTOMVECTOR}/> */}

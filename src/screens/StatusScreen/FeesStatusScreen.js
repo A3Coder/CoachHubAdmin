@@ -13,28 +13,28 @@ import { faGreaterThan, faMagnifyingGlass, } from '@fortawesome/free-solid-svg-i
 import DIVIDER from '../../assets/images/divider.png';
 import ipAddress from '../../url';
 
-const feesData = [
-    {
-        amount: 1500,
-        month: 'January',
-        isPaid: false,
-    },
-    {
-        amount: 1500,
-        month: 'February',
-        isPaid: true,
-    },
-    {
-        amount: 1500,
-        month: 'March',
-        isPaid: false,
-    },
-    {
-        amount: 1500,
-        month: 'April',
-        isPaid: true,
-    },
-];
+// const feesData = [
+//     {
+//         amount: 1500,
+//         month: 'January',
+//         isPaid: false,
+//     },
+//     {
+//         amount: 1500,
+//         month: 'February',
+//         isPaid: true,
+//     },
+//     {
+//         amount: 1500,
+//         month: 'March',
+//         isPaid: false,
+//     },
+//     {
+//         amount: 1500,
+//         month: 'April',
+//         isPaid: true,
+//     },
+// ];
 
 const FeesStatusScreen = () => {
     const navigation = useNavigation();
@@ -44,7 +44,7 @@ const FeesStatusScreen = () => {
     const [date, setdate] = useState(new Date());
 
     //States for Fees Data
-    const [data, setdata] = useState(feesData);
+    const [data, setdata] = useState([]);
 
     //States for Query Data
     const [queryData, setqueryData] = useState([]);
@@ -72,11 +72,11 @@ const FeesStatusScreen = () => {
     //Variables for SVG component
     const CIRCUMFERENCE = 2 * Math.PI * ((150 / 2) - (8 / 2))
     const [lessCircumference, setlessCircumference] = useState((CIRCUMFERENCE * 50) / 100)
-    const calculateData = () => {
+    const calculateData = (DATA) => {
         //First Calculate the Percentage of total Due Fees
         var tPMs = 0
         var tMs = 0
-        data.forEach((item) => {
+        DATA.forEach((item) => {
             if (item.isPaid === true) {
                 tPMs = tPMs + 1
                 settotalPaidMonths((prev) => prev + 1)
@@ -88,13 +88,32 @@ const FeesStatusScreen = () => {
         })
 
         var percentage = Math.floor((tPMs / tMs) * 100)
-        console.log(percentage)
         setlessCircumference((CIRCUMFERENCE * percentage) / 100)
         return
 
     }
+    const fetchData = async () => {
+        const response = await fetch(`http://${ipAddress}:3000/api/v1/fees/search/query?studentId=${route.params.studentId}`).then((res) => res.json())
+
+        //Formatiing Data
+        var data = []
+        if (response.success === false) {
+            return []
+        }
+        response.result[0].feesDetails.forEach((item) => {
+            var temp = {
+                amount: item.amount,
+                month: item.monthName,
+                isPaid: item.isPaid,
+            }
+
+            data.push(temp)
+        })
+        setdata(data)
+        return data
+    }
     useEffect(() => {
-        calculateData()
+        fetchData().then((data) => calculateData(data))
     }, [])
 
     return (
@@ -141,7 +160,7 @@ const FeesStatusScreen = () => {
                                 <View style={{ width: '48%' }}>
                                     <Text style={{ fontSize: 16 }}>Student ID</Text>
                                     <TextInput
-                                        value={'SX2024-01'}
+                                        value={route.params.studentId}
                                         editable={false}
                                         style={{
                                             flex: 1,
