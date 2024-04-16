@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
     StyleSheet,
     Text,
@@ -67,7 +67,6 @@ const postquizScreen = () => {
     const [subject, setSubject] = useState(null);
     const [noOfQuestion, setNoOfQuestion] = useState(null);
 
-
     const [isFocusClass, setIsFocusClass] = useState(false);
     const [isFocusSubject, setIsFocusSubject] = useState(false);
     const [isFocusNoOfQuestion, setIsFocusNoOfQuestion] = useState(false);
@@ -75,29 +74,29 @@ const postquizScreen = () => {
     //States for Questions and Options Input
     const [Q$A, setQ$A] = useState([])
 
+    //State for Data to Post on Backend
+    const [questions, setquestions] = useState([])
+    const [options, setoptions] = useState([])
+    const [rightAnswer, setrightAnswer] = useState([])
+    const [postButton, setpostButton] = useState(false)
+
     const handleNoofQuestions = (noOfQuestions) => {
-        // var arrayofQuestions = Array(2).fill({
-        //     questions: Array(2).fill(""),
-        //     options: Array(2).fill({
-        //         option1: "",
-        //         option2: "",
-        //         option3: "",
-        //         option4: ""
-        //     }),
-        //     rightAnswer: ''
-        // })
         if (!Q$A.length) {
             var arrayofQuestions = []
             for (i = 0; i < noOfQuestions; i++) {
                 var temp = {
                     question: "",
                     option: {
+                        questionIdx: i,
                         option1: "",
                         option2: "",
                         option3: "",
                         option4: ""
                     },
-                    rightAnswer: "",
+                    rightAnswer: {
+                        questionIdx: i,
+                        answer: ""
+                    },
                     _id: i
                 }
                 arrayofQuestions.push(temp)
@@ -108,26 +107,30 @@ const postquizScreen = () => {
             if (noOfQuestions > Q$A.length) {
                 var length = noOfQuestions - Q$A.length
                 var prevArray = [...Q$A]
-                for (i = length; i < noOfQuestions; i++) {
+                for (i = 0; i < length; i++) {
                     var temp = {
                         question: "",
                         option: {
+                            questionIdx: i,
                             option1: "",
                             option2: "",
                             option3: "",
                             option4: ""
                         },
-                        rightAnswer: "",
+                        rightAnswer: {
+                            questionIdx: i,
+                            answer: ""
+                        },
                         _id: i
                     }
                     prevArray.push(temp)
                 }
                 setQ$A(prevArray)
             } else {
-                var index = Q$A.length - noOfQuestions
+                // var index = Q$A.length - noOfQuestions
                 var prevArray = [...Q$A]
 
-                var newArray = prevArray.slice(0, index)
+                var newArray = prevArray.slice(0, noOfQuestions)
 
                 setQ$A(newArray)
             }
@@ -137,7 +140,7 @@ const postquizScreen = () => {
     const formatData = () => {
         const data = [...Q$A]
 
-        if(!data.length){
+        if (!data.length) {
             return
         }
         var questions = []
@@ -150,13 +153,53 @@ const postquizScreen = () => {
             rightAnswers.push(item.rightAnswer)
         })
 
-        console.log(questions)
-        console.log(options)
-        console.log(rightAnswers)
+        setquestions(questions)
+        setoptions(options)
+        setrightAnswer(rightAnswers)
     }
 
-    formatData()
+    const enablePostButton = () => {
+        var ques = [...questions]
+        var opt = [...options]
+        var rA = [...rightAnswer]
 
+        if (!ques.length && !opt.length && !rA.length) {
+            return
+        }
+
+        //Validation
+        var validator = true
+        ques.forEach((item) => {
+            if (item === "") {
+                validator = false
+            }
+        })
+        opt.forEach((item) => {
+            if (item.option1 == "" || item.option2 == "" || item.option3 == "" || item.option4 == "") {
+                validator = false
+            }
+        })
+        rA.forEach((item) => {
+            if (item.answer == "") {
+                validator = false
+            }
+        })
+
+        if (validator) {
+            setpostButton(true)
+        }
+    }
+
+    const handlePost = () => {
+        console.log("POST")
+    }
+
+    useEffect(() => {
+        formatData()
+    }, [Q$A])
+    useEffect(() => {
+        enablePostButton()
+    }, [questions, rightAnswer, options])
     //Handle Navigation
     const handleNavigation = () => {
         navigation.navigate('Student Details')
@@ -258,7 +301,7 @@ const postquizScreen = () => {
                         </View>
 
 
-                        <View style={{ paddingHorizontal: 18, paddingVertical: 5, }}>
+                        <View style={{ paddingHorizontal: 18, paddingVertical: 5, paddingBottom: 75 }}>
                             {
                                 Q$A.map((item, index) => (<QuestionandOptions key={index} variable={item} setFunctions={setQ$A} mainState={Q$A} indexNumber={index}></QuestionandOptions>))
                             }
@@ -268,6 +311,12 @@ const postquizScreen = () => {
                                     (<View style={[{ width: '80%', height: '80%', borderRadius: 50, borderWidth: 0.5, borderColor: 'grey', backgroundColor: '#79eb2d', justifyContent: 'center', alignItems: 'center', },]}></View>)
                                 }
                             </Pressable> */}
+                            <View style={{ gap: 3, marginVertical: 10 }}>
+                                <Text style={{ color: 'grey', fontSize: 14, fontWeight: '500' }}>Timing:</Text>
+                                <View>
+                                    <TextInput value={'30 secs'} editable={false} style={{ borderBottomWidth: 0.5, borderBottomColor: 'grey', paddingHorizontal: 10, paddingVertical: 5, fontSize: 14, color: 'black', fontWeight: '900' }}></TextInput>
+                                </View>
+                            </View>
                         </View>
 
                         {/* <Image
@@ -276,6 +325,21 @@ const postquizScreen = () => {
                         /> */}
                     </View>
                 </ScrollView>
+                {
+                    postButton == true ? (
+                        <TouchableOpacity onPress={() => handlePost()} activeOpacity={0.7} style={{ width: '90%', position: 'absolute', bottom: 0, marginVertical: 15, alignSelf: 'center' }}>
+                            <View>
+                                <Text style={styles.btn}>Post</Text>
+                            </View>
+                        </TouchableOpacity>
+                    ) : (
+                        <View style={{ width: '90%', position: 'absolute', bottom: 0, marginVertical: 15, alignSelf: 'center', }}>
+                            <View>
+                                <Text style={[styles.btn, { color: 'white', backgroundColor: '#a1d1ff' }]}>Post</Text>
+                            </View>
+                        </View>
+                    )
+                }
             </KeyboardAvoidingView>
         </SafeAreaView>
     )
@@ -356,7 +420,7 @@ const styles = StyleSheet.create({
         borderBottomRightRadius: 10,
         borderTopRightRadius: 10,
         borderTopLeftRadius: 10,
-        fontSize: 25,
+        fontSize: 22,
         marginHorizontal: 4,
         fontWeight: 'bold',
         marginTop: 20,

@@ -13,8 +13,11 @@ const QuestionandOptions = ({ variable, setFunctions, mainState, indexNumber }) 
         } else {
             if (variable._id === index) {
                 var prevState = [...mainState]
-                prevState[index][propertyName] = value
-
+                if (propertyName === 'rightAnswer') {
+                    prevState[index][propertyName].answer = value
+                } else {
+                    prevState[index][propertyName] = value
+                }
                 setFunctions(prevState)
             }
         }
@@ -29,17 +32,17 @@ const QuestionandOptions = ({ variable, setFunctions, mainState, indexNumber }) 
     })
     const handleSelectedOption = (index, propertyName, value) => {
         const prevOptions = { ...selectedOption }
-        if(propertyName == 'option1'){
+        if (propertyName == 'option1') {
             prevOptions.option1 = value
             prevOptions.option2 = null
             prevOptions.option3 = null
             prevOptions.option4 = null
-        } else if (propertyName == 'option2'){
+        } else if (propertyName == 'option2') {
             prevOptions.option1 = null
             prevOptions.option2 = value
             prevOptions.option3 = null
             prevOptions.option4 = null
-        } else if (propertyName == 'option3'){
+        } else if (propertyName == 'option3') {
             prevOptions.option1 = null
             prevOptions.option2 = null
             prevOptions.option3 = value
@@ -114,7 +117,7 @@ const QuestionandOptions = ({ variable, setFunctions, mainState, indexNumber }) 
                 </View>
             </View>
             <View>
-                <Text style={{ color: 'grey', fontSize: 14 }}>Right Answer: <Text style={{ color: 'black', fontWeight: '900', fontSize: 18 }}>{variable.rightAnswer} ...</Text> </Text>
+                <Text style={{ color: 'grey', fontSize: 14 }}>Right Answer: <Text style={{ color: 'black', fontWeight: '900', fontSize: 18 }}>{variable.rightAnswer.answer} ...</Text> </Text>
             </View>
             <View style={{ marginVertical: 10, backgroundColor: '#dbd9d9', height: 4, borderRadius: 50 }}></View>
         </>
